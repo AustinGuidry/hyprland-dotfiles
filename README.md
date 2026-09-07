@@ -1,4 +1,4 @@
-# dotfiles
+# hyprland-dotfiles
 
 My [Hyprland](https://hypr.land) setup on Arch Linux — a Lua-configured compositor
 with a wallpaper-driven color scheme that repaints the entire desktop.
@@ -134,3 +134,7 @@ Don't combine it with `--source-color-index`: that flag **silently takes precede
 and the `--prefer` value is ignored entirely. The two strategies pick different
 colors on roughly half of a typical wallpaper collection, so the override is easy to
 miss.
+
+## License
+
+GPL-3.0 — see [LICENSE](LICENSE).
