@@ -126,5 +126,11 @@ lives outside this repo — clone it to `~/qylock` or repoint the bind in
 matugen image ~/Pictures/Wallpapers/your.jpg --prefer=saturation
 ```
 
-The `--prefer=saturation` flag matters — without it matugen can fail or silently
-retheme with a washed-out palette.
+The `--prefer=saturation` flag matters. Without any preference, matugen 4.x fails
+non-interactively with *"Multiple source colors found, no preference was inputted,
+and a terminal was not detected"* — which is exactly how the wallpaper hook runs.
+
+Don't combine it with `--source-color-index`: that flag **silently takes precedence**
+and the `--prefer` value is ignored entirely. The two strategies pick different
+colors on roughly half of a typical wallpaper collection, so the override is easy to
+miss.
