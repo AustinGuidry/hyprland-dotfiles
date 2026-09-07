@@ -1,0 +1,101 @@
+* {
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 16px;
+}
+
+.dashboard {
+    background-color: #1a1110;
+    border: 2px solid #ffb4a9;
+    border-radius: 16px;
+    padding: 15px;
+}
+
+.time {
+    font-size: 42px;
+    font-weight: bold;
+    color: #ffb4a9;
+}
+
+.date {
+    font-size: 16px;
+    margin-top: 4px;
+    color: #f1dedc;
+}
+
+.weather {
+    color: #f1dedc;
+}
+
+.toggle-box {
+    color: #f1dedc;
+}
+
+.wifi-name,
+.bt-status {
+    font-weight: bold;
+    color: #f1dedc;
+}
+
+.app-grid {
+    padding: 5px;
+}
+
+.brightness-slider trough,
+.volume-slider trough {
+    min-width: 180px;
+}
+
+.slider-icon {
+    color: #f1dedc;
+    font-size: 14px;
+}
+
+button.app-btn {
+    all: unset;
+    font-size: 47px;
+    background-color: #561e18;
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: #ffb4a9;
+}
+
+button.app-btn:hover {
+    background-color: #1a1110;
+}
+
+scale {
+    min-width: 0;
+}
+
+.brightness-slider,
+.volume-slider {
+    min-width: 140px;
+}
+
+.ip-box {
+    padding: 4px;
+}
+
+.ip-label {
+    font-size: 12px;
+    color: #f1dedc;
+}
+
+.ip-address {
+    font-weight: bold;
+    color: #ffb4a9;
+    font-size: 14px;
+}
+
+// Disk Free section — colors intentionally bound to the Public IP section
+.disk-label {
+    font-size: 12px;
+    color: #f1dedc;
+}
+
+.disk-value,
+.disk-pct {
+    font-weight: bold;
+    color: #ffb4a9;
+    font-size: 14px;
+}

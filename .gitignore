@@ -1,0 +1,12 @@
+# Generated at runtime, not worth tracking
+*.log
+*.save
+*.bak
+*~
+
+# Upstream source checkouts that sometimes get cloned under .config/hypr
+.config/hypr/awww/
+.config/hypr/hyprtoolkit/
+
+# Local-only overrides
+*.local

@@ -1,0 +1,314 @@
+@import 'colors.css';
+
+* {
+    font-family: "JetBrainsMono Nerd Font", FontAwesome, Roboto, sans-serif;
+    font-size: 15px;
+}
+
+#custom-dashboard {
+    background-color: transparent;
+    color: @on_surface;
+    padding: 0 10px;
+    margin: 3px 2px;
+    border-radius: 6px;
+    font-size: 17px;
+}
+
+#cpu,
+#temperature,
+#temperature.critical,
+#backlight,
+#battery,
+#battery.charging,
+#battery.plugged,
+#clock,
+#memory {
+    min-height: 0;
+    padding: 0 5px;
+}
+
+window#waybar {
+    background-color: @surface;
+    color: @on_surface;
+    border-bottom: 1px solid alpha(@primary, 0.3);
+    transition-property: background-color;
+    transition-duration: .5s;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+button {
+    box-shadow: inset 0 -3px transparent;
+    border: 1px;
+    border-radius: 6px;
+}
+
+button:hover {
+    background: inherit;
+    box-shadow: inset 0 -3px @primary;
+}
+
+/* ======= APP LAUNCHER ======= */
+
+#custom-launcher {
+    background-color: alpha(@on_primary, 0.3);
+    color: @on_surface;
+    padding: 0 10px;
+    margin: 3px 2px;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+#custom-launcher:hover {
+    background-color: alpha(@primary, 0.3);
+}
+
+/* ======= WORKSPACES ======= */
+
+#workspaces button {
+    padding: 0 5px;
+    background-color: alpha(@on_primary, 0.3);
+    color: @on_surface;
+    border-radius: 6px;
+    margin: 3px 2px;
+}
+
+#workspaces button:hover {
+    background: alpha(@primary, 0.2);
+}
+
+#workspaces button.focused {
+    background-color: alpha(@primary, 0.4);
+    box-shadow: inset 0 -3px @primary;
+    border-radius: 6px;
+    border: 1px solid @primary;
+}
+
+#workspaces button.urgent {
+    background-color: #8b2020;
+    border-radius: 6px;
+}
+
+#mode {
+    background-color: alpha(@primary, 0.4);
+    box-shadow: inset 0 -3px @primary;
+    border-radius: 6px;
+}
+
+
+/* ======= NETWORK ======= */
+
+#network {
+    background-color: transparent;
+    color: @on_surface;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+#network.disconnected {
+    background-color: #6b1a1a;
+    color: #ffaaaa;
+}
+
+/* ======= BLUETOOTH ======= */
+
+#bluetooth {
+    font-size: 16px;
+}
+
+/* ======= CPU USAGE INDICATOR ======= */
+
+#cpu {
+    background-color: transparent;
+    color: @on_surface;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+/* ======= RAM USAGE INDICATOR ======= */
+
+#memory {
+    background-color: transparent;
+    color: @on_surface;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+/* ======= TEMPERATURE INDICATOR ======= */
+
+#temperature {
+    background-color: transparent;
+    color: @on_surface;
+    font-size: 14px;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+#temperature.critical {
+    background-color: #6b1a1a;
+    color: #ffaaaa;
+    font-size: 14px;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+/* ======= BRIGHTNESS INDICATOR ======= */
+
+#backlight {
+    background-color: transparent;
+    color: @on_surface;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+/* ======= BATTERY INDICATOR ======= */
+
+#battery {
+    background-color: alpha(@on_primary, 0.3);
+    color: @on_surface;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+#battery.charging,
+#battery.plugged {
+    color: @on_surface;
+    background-color: alpha(@secondary, 0.4);
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+@keyframes blink {
+    to {
+        background-color: @primary;
+        color: @on_primary;
+    }
+}
+
+#battery.critical:not(.charging) {
+    background-color: #6b1a1a;
+    color: #ffaaaa;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+/* ======= CURRENT TIME ======== */
+
+#clock {
+    background-color: alpha(@on_primary, 0.3);
+    color: @on_surface;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+/* ======= POWER AND LOGOUT MENU ======== */
+
+#custom-power {
+    background-color: alpha(@on_primary, 0.3);
+    font-size: 16px;
+    padding: 0 5px;
+    color: @on_surface;
+    border-radius: 8px;
+    margin: 3px 5px;
+}
+
+#window,
+#workspaces {
+    margin: 4px 4px;
+}
+
+.modules-left>widget:first-child>#workspaces {
+    margin-left: 0;
+}
+
+.modules-right>widget:last-child>#workspaces {
+    margin-right: 0;
+}
+
+label:focus {
+    background-color: @surface;
+}
+
+#disk {
+    background-color: alpha(@secondary, 0.3);
+    color: @on_surface;
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+/* ======= POWER MENU ======= */
+
+menu {
+    background-color: @surface;
+    color: @on_surface;
+    border: 1px solid alpha(@primary, 0.4);
+    border-radius: 8px;
+}
+
+menu menuitem {
+    padding: 4px 12px;
+    color: @on_surface;
+}
+
+menu menuitem:hover {
+    background-color: alpha(@primary, 0.3);
+    border-radius: 4px;
+}
+
+/* ======= TRAY ======= */
+
+#tray {
+    background-color: alpha(@on_primary, 0.3);
+    border-radius: 6px;
+    margin: 3px 2px;
+}
+
+#tray>.passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray>.needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: #6b1a1a;
+}
+
+/* ======= POWER PROFILES ======= */
+
+#power-profiles-daemon {
+    margin: 3px 2px;
+    padding: 0 5px;
+    border-radius: 6px;
+}
+
+#power-profiles-daemon.performance {
+    background-color: #6b1a1a;
+    color: #ffaaaa;
+}
+
+#power-profiles-daemon.balanced {
+    background-color: alpha(@primary, 0.3);
+    color: @on_surface;
+}
+
+#power-profiles-daemon.power-saver {
+    background-color: alpha(@secondary, 0.3);
+    color: @on_surface;
+}

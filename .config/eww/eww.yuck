@@ -1,0 +1,160 @@
+;; Variables
+(defvar dashboard_visible false)
+
+;; Weather poll
+(defpoll weather :interval "10m"
+  `curl -s "wttr.in/?format=%C+%t" 2>/dev/null || echo "N/A"`)
+
+;; Time
+(defpoll time :interval "1s"
+  `date "+%I:%M %p"`)
+
+;; Date
+(defpoll date :interval "1m"
+  `date "+%A, %B %d"`)
+
+;; WiFi
+(defpoll wifi_name :interval "5s"
+  `nmcli -t -f NAME connection show --active | head -1 | cut -c1-10`)
+
+;; Bluetooth
+(defpoll bt_status :interval "5s"
+  `bluetoothctl show | grep "Powered" | awk '{print $2}' | sed 's/yes/Enabled/;s/no/Disabled/'`)
+
+;; Brightness
+(defpoll brightness :interval "1s"
+  `cat /sys/class/backlight/intel_backlight/brightness`)
+
+(defpoll brightness_max :interval "1h"
+  `cat /sys/class/backlight/intel_backlight/max_brightness`)
+
+;; Volume
+(defpoll volume :interval "1s"
+  `wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{printf "%d", $2 * 100}'`)
+
+(defpoll public_ip :interval "30s"
+  `curl -s --max-time 5 -4 ifconfig.me 2>/dev/null || echo "No connection"`)
+
+;; Disk usage
+(defpoll disk_free_gb :interval "1m"
+  `df -h / | awk 'NR==2 {print $4}'`)
+
+(defpoll disk_free_pct :interval "1m"
+  `df / | awk 'NR==2 {printf "%d", 100 - $5}'`)
+
+;; Main dashboard window
+(defwindow dashboard
+  :monitor 0
+  :geometry (geometry
+    :x "20px"
+    :y "50px"
+    :width "300px"
+    :height "600px"
+    :anchor "top left")
+  :stacking "overlay"
+  :exclusive false
+  (dashboard-widget))
+
+;; Main widget
+(defwidget dashboard-widget []
+  (box :class "dashboard"
+       :orientation "v"
+       :space-evenly false
+       :spacing 10
+    (time-widget)
+    (weather-widget)
+    (wifi-bt-widget)
+    (ip-widget)
+    (disk-widget)
+    (brightness-widget)
+    (volume-widget)
+    (app-launcher-widget)))
+
+;; Time/Date
+(defwidget time-widget []
+  (box :class "time-box"
+       :orientation "v"
+       :halign "center"
+    (label :class "time" :text time)
+    (label :class "date" :text date)))
+
+;; Weather
+(defwidget weather-widget []
+  (box :class "weather-box"
+       :orientation "h"
+       :halign "center"
+       :spacing 10
+    (label :class "weather" :text weather)))
+
+;; WiFi + Bluetooth
+(defwidget wifi-bt-widget []
+  (box :class "toggles"
+       :orientation "h"
+       :spacing 10
+    (box :class "toggle-box" :orientation "v"
+      (label :text "WiFi")
+      (label :class "wifi-name" :text wifi_name))
+    (box :class "toggle-box" :orientation "v"
+      (label :text "Bluetooth")
+      (label :class "bt-status" :text bt_status))))
+
+;; Public IP
+(defwidget ip-widget []
+  (box :class "ip-box"
+       :orientation "v"
+       :halign "center"
+    (label :class "ip-label" :text "Public IP")
+    (label :class "ip-address" :text public_ip)))
+
+    ;; Disk usage
+(defwidget disk-widget []
+  (box :class "disk-box"
+       :orientation "v"
+       :halign "center"
+    (label :class "disk-label" :text "Disk Free")
+    (box :orientation "h" :halign "center" :spacing 8
+      (label :class "disk-value" :text disk_free_gb)
+      (label :class "disk-pct" :text {"(" + disk_free_pct + "%%)"}))))
+
+;; Brightness
+(defwidget brightness-widget []
+  (box :class "brightness-box"
+       :orientation "v"
+       :spacing 2
+    (box :orientation "h"
+         :halign "fill"
+         :spacing 4
+      (label :class "slider-icon" :halign "start" :text "")
+      (label :class "slider-icon" :halign "end" :text ""))
+    (scale :class "brightness-slider"
+           :value brightness
+           :min 100
+           :max brightness_max
+           :onchange "~/scripts/set-brightness.sh {}")))
+
+;; Volume
+(defwidget volume-widget []
+  (box :class "volume-box"
+       :orientation "v"
+       :spacing 2
+    (box :orientation "h"
+         :halign "fill"
+         :spacing 4
+      (label :class "slider-icon" :halign "start" :text "")
+      (label :class "slider-icon" :halign "end" :text ""))
+    (scale :class "volume-slider"
+           :value volume
+           :min 0
+           :max 100
+           :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")))
+
+;; App launcher
+(defwidget app-launcher-widget []
+  (box :class "app-grid"
+       :orientation "h"
+       :spacing 5
+       :halign "center"
+    (button :class "app-btn" :onclick "brave-origin-beta &" "")
+    (button :class "app-btn" :onclick "kitty &" "")
+    (button :class "app-btn" :onclick "nautilus &" "")
+    (button :class "app-btn" :onclick "code &" "")))
