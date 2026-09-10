@@ -63,7 +63,7 @@
   :geometry (geometry
     :x "0px"
     :y "0px"
-    :width "1180px"
+    :width "1040px"
     :height "0px"
     :anchor "center")
   :stacking "overlay"
@@ -176,14 +176,14 @@
 ;; A titled group of kb rows
 (defwidget kb-col [title]
   (box :class "kb-col" :orientation "v" :space-evenly false :spacing 6
-    (label :class "kb-col-title" :text title :halign "start")
+    (label :class "kb-col-title" :text title :halign "center")
     (box :class "kb-col-body" :orientation "v" :space-evenly false :spacing 3
       (children))))
 
 (defwidget cheatsheet-widget []
   (box :class "cheatsheet" :orientation "v" :space-evenly false :spacing 16
     (label :class "cheatsheet-title" :text "Keybindings" :halign "center")
-    (box :class "cheatsheet-cols" :orientation "h" :space-evenly false :spacing 34
+    (box :class "cheatsheet-cols" :orientation "h" :space-evenly false :spacing 40 :halign "center" :hexpand true
       (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
         (kb-col :title "Applications"
           (kb :key "Super T" :desc "Terminal")
