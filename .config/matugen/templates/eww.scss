@@ -99,3 +99,46 @@ scale {
     color: {{colors.primary.default.hex}};
     font-size: 14px;
 }
+
+// ── Keybind cheatsheet (Super + K) ──────────────────────────
+.cheatsheet {
+    background-color: {{colors.surface.default.hex}};
+    border: 2px solid {{colors.primary.default.hex}};
+    border-radius: 18px;
+    padding: 24px 28px;
+}
+
+.cheatsheet-title {
+    font-size: 25px;
+    font-weight: bold;
+    color: {{colors.primary.default.hex}};
+    margin-bottom: 4px;
+}
+
+.kb-col-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: {{colors.secondary.default.hex}};
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid {{colors.on_primary.default.hex}};
+}
+
+.kb-row {
+    padding: 2px 0;
+}
+
+.kb-key {
+    font-size: 13px;
+    font-weight: bold;
+    color: {{colors.primary.default.hex}};
+    background-color: {{colors.on_primary.default.hex}};
+    border-radius: 7px;
+    padding: 2px 9px;
+    min-width: 124px;
+}
+
+.kb-desc {
+    color: {{colors.on_surface.default.hex}};
+    font-size: 14px;
+}

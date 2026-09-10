@@ -4,8 +4,8 @@
 }
 
 .dashboard {
-    background-color: #1a1110;
-    border: 2px solid #ffb4a9;
+    background-color: #0f1511;
+    border: 2px solid #90d5ae;
     border-radius: 16px;
     padding: 15px;
 }
@@ -13,27 +13,27 @@
 .time {
     font-size: 42px;
     font-weight: bold;
-    color: #ffb4a9;
+    color: #90d5ae;
 }
 
 .date {
     font-size: 16px;
     margin-top: 4px;
-    color: #f1dedc;
+    color: #dee4de;
 }
 
 .weather {
-    color: #f1dedc;
+    color: #dee4de;
 }
 
 .toggle-box {
-    color: #f1dedc;
+    color: #dee4de;
 }
 
 .wifi-name,
 .bt-status {
     font-weight: bold;
-    color: #f1dedc;
+    color: #dee4de;
 }
 
 .app-grid {
@@ -46,21 +46,21 @@
 }
 
 .slider-icon {
-    color: #f1dedc;
+    color: #dee4de;
     font-size: 14px;
 }
 
 button.app-btn {
     all: unset;
     font-size: 47px;
-    background-color: #561e18;
+    background-color: #003823;
     border-radius: 10px;
     padding: 13px 16px;
-    color: #ffb4a9;
+    color: #90d5ae;
 }
 
 button.app-btn:hover {
-    background-color: #1a1110;
+    background-color: #0f1511;
 }
 
 scale {
@@ -78,24 +78,67 @@ scale {
 
 .ip-label {
     font-size: 12px;
-    color: #f1dedc;
+    color: #dee4de;
 }
 
 .ip-address {
     font-weight: bold;
-    color: #ffb4a9;
+    color: #90d5ae;
     font-size: 14px;
 }
 
 // Disk Free section — colors intentionally bound to the Public IP section
 .disk-label {
     font-size: 12px;
-    color: #f1dedc;
+    color: #dee4de;
 }
 
 .disk-value,
 .disk-pct {
     font-weight: bold;
-    color: #ffb4a9;
+    color: #90d5ae;
+    font-size: 14px;
+}
+
+// ── Keybind cheatsheet (Super + K) ──────────────────────────
+.cheatsheet {
+    background-color: #0f1511;
+    border: 2px solid #90d5ae;
+    border-radius: 18px;
+    padding: 24px 28px;
+}
+
+.cheatsheet-title {
+    font-size: 25px;
+    font-weight: bold;
+    color: #90d5ae;
+    margin-bottom: 4px;
+}
+
+.kb-col-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #b4ccbc;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid #003823;
+}
+
+.kb-row {
+    padding: 2px 0;
+}
+
+.kb-key {
+    font-size: 13px;
+    font-weight: bold;
+    color: #90d5ae;
+    background-color: #003823;
+    border-radius: 7px;
+    padding: 2px 9px;
+    min-width: 124px;
+}
+
+.kb-desc {
+    color: #dee4de;
     font-size: 14px;
 }

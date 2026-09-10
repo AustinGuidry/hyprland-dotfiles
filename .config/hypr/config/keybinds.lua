@@ -15,20 +15,46 @@ hl.bind(mainMod .. " + H", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + O", hl.dsp.exec_cmd("qbittorrent"))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("code"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
-hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(os.getenv("HOME") .. "/qylock/quickshell-lockscreen/lock.sh"))
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("/home/rguidry/qylock/quickshell-lockscreen/lock.sh"))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("waypaper"))
-hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("eww open-many --toggle dashboard"))
--- NOTE: a bare "Escape" bind grabs the key compositor-wide, so Escape never
--- reaches any application (rofi, vim, browser fullscreen, dialogs...).
--- mainMod + D already toggles the dashboard closed. Re-enable only if you
--- scope it to a submap that's active while the dashboard is open.
--- hl.bind("Escape", hl.dsp.exec_cmd("eww close dashboard 2>/dev/null; true"))
+-- Dashboard: mainMod + D toggles it open/closed. Toggling also enters/exits
+-- the "dashboard" submap below, so Escape only closes the dashboard while
+-- it's actually open -- a bare "Escape" bind would otherwise grab the key
+-- compositor-wide and break Escape everywhere else (rofi, vim, browser
+-- fullscreen, dialogs...).
+local function dashboardToggle()
+    return hl.dsp.exec_cmd(os.getenv("HOME") .. "/scripts/toggle-dashboard.sh")
+end
+
+hl.bind(mainMod .. " + D", dashboardToggle())
+
+hl.define_submap("dashboard", function()
+    hl.bind("Escape", dashboardToggle())
+    hl.bind(mainMod .. " + D", dashboardToggle())
+end)
+
+-- Keybind cheatsheet: mainMod + K toggles a centered eww overlay listing every
+-- custom bind. Same submap trick as the dashboard so Escape closes it without
+-- grabbing Escape compositor-wide.
+local function cheatsheetToggle()
+    return hl.dsp.exec_cmd(os.getenv("HOME") .. "/scripts/toggle-cheatsheet.sh")
+end
+
+hl.bind(mainMod .. " + K", cheatsheetToggle())
+
+hl.define_submap("cheatsheet", function()
+    hl.bind("Escape", cheatsheetToggle())
+    hl.bind(mainMod .. " + K", cheatsheetToggle())
+end)
 
 -- Window management
 hl.bind(mainMod .. " + Q", hl.dsp.window.kill())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen())
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
+
+-- Toggle kitty background transparency on/off (text stays opaque either way)
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(os.getenv("HOME") .. "/scripts/toggle-kitty-opacity.sh"))
 
 -- Screenshots
 hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd("hyprshot -m window"))

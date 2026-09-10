@@ -55,6 +55,21 @@
   :exclusive false
   (dashboard-widget))
 
+;; Keybind cheatsheet window (Super + K), centered on top of everything.
+;; toggle-cheatsheet.sh opens/closes this alongside the Hyprland "cheatsheet"
+;; submap, so Escape closes it.
+(defwindow cheatsheet
+  :monitor 0
+  :geometry (geometry
+    :x "0px"
+    :y "0px"
+    :width "1180px"
+    :height "0px"
+    :anchor "center")
+  :stacking "overlay"
+  :exclusive false
+  (cheatsheet-widget))
+
 ;; Main widget
 (defwidget dashboard-widget []
   (box :class "dashboard"
@@ -147,6 +162,67 @@
            :min 0
            :max 100
            :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")))
+
+;; ============================================================
+;; Keybind cheatsheet
+;; ============================================================
+
+;; One "Key  Description" row
+(defwidget kb [key desc]
+  (box :class "kb-row" :orientation "h" :space-evenly false :spacing 12
+    (label :class "kb-key" :text key :halign "start")
+    (label :class "kb-desc" :text desc :halign "start" :hexpand true)))
+
+;; A titled group of kb rows
+(defwidget kb-col [title]
+  (box :class "kb-col" :orientation "v" :space-evenly false :spacing 6
+    (label :class "kb-col-title" :text title :halign "start")
+    (box :class "kb-col-body" :orientation "v" :space-evenly false :spacing 3
+      (children))))
+
+(defwidget cheatsheet-widget []
+  (box :class "cheatsheet" :orientation "v" :space-evenly false :spacing 16
+    (label :class "cheatsheet-title" :text "Keybindings" :halign "center")
+    (box :class "cheatsheet-cols" :orientation "h" :space-evenly false :spacing 34
+      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
+        (kb-col :title "Applications"
+          (kb :key "Super T" :desc "Terminal")
+          (kb :key "Super E" :desc "File manager")
+          (kb :key "Super B" :desc "Browser")
+          (kb :key "Super C" :desc "VS Code")
+          (kb :key "Super H" :desc "App launcher")
+          (kb :key "Super O" :desc "qBittorrent")
+          (kb :key "Super W" :desc "Wallpaper picker")
+          (kb :key "Super L" :desc "Lock screen")
+          (kb :key "Super D" :desc "Dashboard")
+          (kb :key "Super K" :desc "This cheatsheet")
+          (kb :key "Super Esc" :desc "Exit / power menu")))
+      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
+        (kb-col :title "Windows"
+          (kb :key "Super Q" :desc "Close window")
+          (kb :key "Super M" :desc "Toggle floating")
+          (kb :key "Super F" :desc "Fullscreen")
+          (kb :key "Super J" :desc "Toggle split")
+          (kb :key "Super P" :desc "Kitty transparency")
+          (kb :key "Super Shift P" :desc "Pseudo-tile"))
+        (kb-col :title "Focus & Workspaces"
+          (kb :key "Super Arrows" :desc "Move focus")
+          (kb :key "Super 1 - 0" :desc "Switch workspace")
+          (kb :key "Super Shift 1-0" :desc "Move window to WS")
+          (kb :key "Super S" :desc "Scratchpad")
+          (kb :key "Super Shift S" :desc "Send to scratchpad")
+          (kb :key "Super Scroll" :desc "Cycle workspaces")))
+      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
+        (kb-col :title "Screenshots"
+          (kb :key "Print" :desc "Whole output")
+          (kb :key "Super Print" :desc "Active window")
+          (kb :key "Super Shift Print" :desc "Region"))
+        (kb-col :title "Media & Hardware"
+          (kb :key "Vol +/- Mute" :desc "Audio volume")
+          (kb :key "Mic Mute" :desc "Toggle microphone")
+          (kb :key "Brightness +/-" :desc "Screen brightness")
+          (kb :key "Play / Pause" :desc "Media playback")
+          (kb :key "Next / Prev" :desc "Change track"))))))
 
 ;; App launcher
 (defwidget app-launcher-widget []
