@@ -100,7 +100,7 @@
     },
     "custom/dashboard": {
         "format": "󱄄",
-        "on-click": "eww open-many --toggle dashboard",
+        "on-click": "$HOME/scripts/toggle-dashboard.sh",
         "tooltip": false
     }
 }
