@@ -17,6 +17,23 @@ hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("code"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("/home/rguidry/qylock/quickshell-lockscreen/lock.sh"))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("waypaper"))
+
+-- Screenshots. Declared as a helper because a submap replaces the whole
+-- keymap: without re-binding these inside every submap, Print does nothing
+-- while the dashboard or cheatsheet overlay is open.
+--
+-- `-m active` on output/window mode makes the grab instant (current monitor /
+-- focused window) instead of waiting for a mouse click to pick one -- which is
+-- what you want from a hotkey, and the only thing that works while an overlay
+-- has a keyboard grab. Region stays interactive on purpose.
+local function screenshotBinds()
+    hl.bind("PRINT", hl.dsp.exec_cmd("hyprshot -m output -m active"))
+    hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd("hyprshot -m window -m active"))
+    hl.bind(mainMod .. " + SHIFT + PRINT", hl.dsp.exec_cmd("hyprshot -m region"))
+end
+
+screenshotBinds()
+
 -- Dashboard: mainMod + D toggles it open/closed. Toggling also enters/exits
 -- the "dashboard" submap below, so Escape only closes the dashboard while
 -- it's actually open -- a bare "Escape" bind would otherwise grab the key
@@ -31,6 +48,7 @@ hl.bind(mainMod .. " + D", dashboardToggle())
 hl.define_submap("dashboard", function()
     hl.bind("Escape", dashboardToggle())
     hl.bind(mainMod .. " + D", dashboardToggle())
+    screenshotBinds()
 end)
 
 -- Keybind cheatsheet: mainMod + K toggles a centered eww overlay listing every
@@ -45,6 +63,7 @@ hl.bind(mainMod .. " + K", cheatsheetToggle())
 hl.define_submap("cheatsheet", function()
     hl.bind("Escape", cheatsheetToggle())
     hl.bind(mainMod .. " + K", cheatsheetToggle())
+    screenshotBinds()
 end)
 
 -- Window management
@@ -56,10 +75,8 @@ hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
 -- Toggle kitty background transparency on/off (text stays opaque either way)
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(os.getenv("HOME") .. "/scripts/toggle-kitty-opacity.sh"))
 
--- Screenshots
-hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd("hyprshot -m window"))
-hl.bind("PRINT", hl.dsp.exec_cmd("hyprshot -m output"))
-hl.bind(mainMod .. " + SHIFT + PRINT", hl.dsp.exec_cmd("hyprshot -m region"))
+-- Screenshots: bound globally via screenshotBinds() near the top, and again
+-- inside each submap so Print keeps working while an overlay is open.
 
 -- Focus movement
 hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "l" }))
