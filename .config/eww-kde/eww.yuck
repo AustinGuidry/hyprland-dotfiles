@@ -1,0 +1,69 @@
+;; Keybind cheatsheet window (Super + K) for the KDE Plasma session.
+;; Separate from ~/.config/eww (the Hyprland dashboard/cheatsheet config) so
+;; switching desktop environments never touches the other's setup.
+;; Toggled by ~/scripts/toggle-kde-cheatsheet.sh.
+
+(defwindow cheatsheet
+  :monitor 0
+  :geometry (geometry
+    :x "0px"
+    :y "0px"
+    :width "1040px"
+    :height "0px"
+    :anchor "center")
+  :stacking "overlay"
+  :exclusive false
+  (cheatsheet-widget))
+
+;; One "Key  Description" row
+(defwidget kb [key desc]
+  (box :class "kb-row" :orientation "h" :space-evenly false :spacing 12
+    (label :class "kb-key" :text key :halign "start")
+    (label :class "kb-desc" :text desc :halign "start" :hexpand true)))
+
+;; A titled group of kb rows
+(defwidget kb-col [title]
+  (box :class "kb-col" :orientation "v" :space-evenly false :spacing 6
+    (label :class "kb-col-title" :text title :halign "center")
+    (box :class "kb-col-body" :orientation "v" :space-evenly false :spacing 3
+      (children))))
+
+(defwidget cheatsheet-widget []
+  (box :class "cheatsheet" :orientation "v" :space-evenly false :spacing 16
+    (label :class "cheatsheet-title" :text "Keybindings (KDE)" :halign "center")
+    (box :class "cheatsheet-cols" :orientation "h" :space-evenly false :spacing 40 :halign "center" :hexpand true
+      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
+        (kb-col :title "Applications"
+          (kb :key "Super T" :desc "Konsole")
+          (kb :key "Super E" :desc "File manager")
+          (kb :key "Super B" :desc "Browser")
+          (kb :key "Super C" :desc "VS Code")
+          (kb :key "Super H" :desc "App launcher")
+          (kb :key "Super O" :desc "qBittorrent")
+          (kb :key "Super W" :desc "Wallpaper settings")
+          (kb :key "Super L" :desc "Lock screen")
+          (kb :key "Super K" :desc "This cheatsheet")))
+      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
+        (kb-col :title "Windows"
+          (kb :key "Super Q" :desc "Close window")
+          (kb :key "Super F" :desc "Fullscreen")
+          (kb :key "Super PgUp" :desc "Maximize")
+          (kb :key "Super PgDown" :desc "Minimize")
+          (kb :key "Super P" :desc "Kitty transparency")
+          (kb :key "Super + drag" :desc "Move window")
+          (kb :key "Super + right-drag" :desc "Resize window")
+          (kb :key "Meta Ctrl Esc" :desc "Force kill window"))
+        (kb-col :title "Focus & Workspaces"
+          (kb :key "Super Arrows" :desc "Move focus")
+          (kb :key "Super 1 - 0" :desc "Switch workspace")
+          (kb :key "Super Shift 1-0" :desc "Move window to WS")))
+      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
+        (kb-col :title "Screenshots"
+          (kb :key "Print" :desc "Whole screen")
+          (kb :key "Super Print" :desc "Active window")
+          (kb :key "Super Shift Print" :desc "Region"))
+        (kb-col :title "Media & Hardware"
+          (kb :key "Volume Up/Down" :desc "Adjust volume")
+          (kb :key "Mute" :desc "Mute audio")
+          (kb :key "Brightness Up/Down" :desc "Adjust brightness")
+          (kb :key "Media Prev/Play/Next" :desc "Playback control"))))))

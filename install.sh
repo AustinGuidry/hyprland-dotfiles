@@ -13,6 +13,7 @@ LINKS=(
     ".config/matugen"
     ".config/waybar"
     ".config/eww"
+    ".config/eww-kde"
     ".config/rofi"
     ".config/kitty"
     ".config/ashell"

@@ -28,8 +28,9 @@ hl.window_rule({
     float = true,
 })
 
-hl.window_rule({
-    name  = "kitty-opacity",
-    match = { class = "kitty" },
-    opacity = 0.75,
-})
+-- Terminal transparency is handled inside kitty itself (background_opacity in
+-- ~/.config/kitty/kitty.conf), not with a Hyprland opacity rule. A Hyprland
+-- rule dims the whole window -- glyphs included -- which wrecks readability;
+-- kitty's background_opacity dims only the background and keeps text crisp.
+-- SUPER+P toggles it between the configured value and fully opaque for reading
+-- long text / playing terminal games (see ~/scripts/toggle-kitty-opacity.sh).

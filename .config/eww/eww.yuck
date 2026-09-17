@@ -204,7 +204,8 @@
           (kb :key "Super F" :desc "Fullscreen")
           (kb :key "Super J" :desc "Toggle split")
           (kb :key "Super P" :desc "Kitty transparency")
-          (kb :key "Super Shift P" :desc "Pseudo-tile"))
+          (kb :key "Super Shift P" :desc "Pseudo-tile")
+          (kb :key "Super G" :desc "Fling mode"))
         (kb-col :title "Focus & Workspaces"
           (kb :key "Super Arrows" :desc "Move focus")
           (kb :key "Super 1 - 0" :desc "Switch workspace")

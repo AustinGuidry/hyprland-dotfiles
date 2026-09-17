@@ -46,6 +46,7 @@ overwrites them.
 | `.config/matugen/` | Color pipeline config + templates |
 | `.config/waybar/` | Status bar (top, 44px) |
 | `.config/eww/` | Toggleable dashboard widget |
+| `.config/eww-kde/` | Same cheatsheet widget, for KDE Plasma sessions (toggled by `scripts/toggle-kde-cheatsheet.sh`) |
 | `.config/rofi/` | Launcher theming |
 | `.config/kitty/` | Terminal |
 | `.config/waypaper/` | Wallpaper picker; its `post_command` kicks off the pipeline |

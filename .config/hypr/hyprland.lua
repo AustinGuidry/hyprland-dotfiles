@@ -24,6 +24,7 @@ require("config.permissions") -- PERMISSIONS --
 require("config.windows_workspaces") -- WINDOWS AND WORKSPACES --
 require("config.gestures") -- GESTURES
 require("config.autostart") -- AUTOSTART
+require("config.hyprfling") -- HYPRFLING
 require("config.colors") -- COLORS
 
 ----------------
@@ -44,6 +45,10 @@ hl.monitor({
 hl.env("XCURSOR_SIZE",    "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("HYPRSHOT_DIR",    os.getenv("HOME") .. "/Pictures/Screenshots")
+
+hl.env("QT_IM_MODULE",  "fcitx")
+hl.env("XMODIFIERS",    "@im=fcitx")
+hl.env("SDL_IM_MODULE", "fcitx")
 
 -----------
 --- INPUT ---

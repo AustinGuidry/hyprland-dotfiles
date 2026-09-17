@@ -1,0 +1,47 @@
+* {
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 16px;
+}
+
+// ── Keybind cheatsheet (Super + K) — matches the Hyprland dashboard theme ──
+.cheatsheet {
+    background-color: #101418;
+    border: 2px solid #9acbfa;
+    border-radius: 18px;
+    padding: 24px 28px;
+}
+
+.cheatsheet-title {
+    font-size: 25px;
+    font-weight: bold;
+    color: #9acbfa;
+    margin-bottom: 4px;
+}
+
+.kb-col-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #b9c8da;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid #003352;
+}
+
+.kb-row {
+    padding: 2px 0;
+}
+
+.kb-key {
+    font-size: 13px;
+    font-weight: bold;
+    color: #9acbfa;
+    background-color: #003352;
+    border-radius: 7px;
+    padding: 2px 9px;
+    min-width: 124px;
+}
+
+.kb-desc {
+    color: #e0e2e8;
+    font-size: 14px;
+}
