@@ -64,7 +64,7 @@ Hyprland is configured in **Lua**, not hyprlang — this needs Hyprland 0.55+.
 | `SUPER` + `T` | Terminal (kitty) |
 | `SUPER` + `B` | Browser |
 | `SUPER` + `E` | Files (nautilus) |
-| `SUPER` + `H` | Launcher (hyprlauncher) |
+| `SUPER` + `H` | Launcher (rofi) |
 | `SUPER` + `D` | Toggle eww dashboard |
 | `SUPER` + `W` | Wallpaper picker → retheme |
 | `SUPER` + `L` | Lock |
@@ -102,10 +102,10 @@ Then reload: `hyprctl reload`
 # core
 sudo pacman -S hyprland hyprlock hypridle waybar rofi kitty \
                brightnessctl playerctl wireplumber dunst nautilus \
-               polkit-kde-agent swaybg
+               polkit-kde-agent swaybg nwg-menu papirus-icon-theme
 
 # AUR
-paru -S matugen-bin waypaper hyprshot hyprlauncher eww \
+paru -S matugen-bin waypaper hyprshot eww \
         networkmanager-dmenu rofi-bluetooth clipist
 ```
 

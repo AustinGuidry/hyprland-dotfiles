@@ -9,7 +9,7 @@
 
 terminal    = "kitty"
 fileManager = "nautilus"
-menu        = "hyprlauncher"
+menu        = "rofi -show drun"
 browser     = "brave-origin-beta"
 mainMod     = "SUPER"
 

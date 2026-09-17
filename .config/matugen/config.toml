@@ -20,3 +20,23 @@ output_path = "~/.config/eww/eww.scss"
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi/colors.rasi'
 output_path = '~/.config/rofi/colors.rasi'
+
+[templates.nwg-menu]
+input_path = '~/.config/matugen/templates/nwg-menu/menu-start.css'
+output_path = '~/.config/nwg-panel/menu-start.css'
+
+[templates.nwg-menu-icon-lock-screen]
+input_path = '~/.config/matugen/templates/nwg-menu-icons/system-lock-screen.svg'
+output_path = '~/.local/share/icons/hicolor/scalable/status/system-lock-screen.svg'
+
+[templates.nwg-menu-icon-log-out]
+input_path = '~/.config/matugen/templates/nwg-menu-icons/system-log-out.svg'
+output_path = '~/.local/share/icons/hicolor/scalable/actions/system-log-out.svg'
+
+[templates.nwg-menu-icon-reboot]
+input_path = '~/.config/matugen/templates/nwg-menu-icons/system-reboot.svg'
+output_path = '~/.local/share/icons/hicolor/scalable/actions/system-reboot.svg'
+
+[templates.nwg-menu-icon-shutdown]
+input_path = '~/.config/matugen/templates/nwg-menu-icons/system-shutdown.svg'
+output_path = '~/.local/share/icons/hicolor/scalable/actions/system-shutdown.svg'

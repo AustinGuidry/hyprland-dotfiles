@@ -9,7 +9,7 @@
     ],
     "custom/launcher": {
         "format": "󰀻 ",
-        "on-click": "hyprlauncher",
+        "on-click": "nwg-menu -ha left -va top -mt 44 -wm hyprland -term kitty -fm nautilus -t -d",
         "tooltip": false
     },
     "modules-center": [
@@ -30,6 +30,8 @@
         "format": "<span style=\"italic\">{}</span>"
     },
     "bluetooth": {
+        "format-on": "On",
+        "format-off": "Off",
         "on-click": "rofi-bluetooth"
     },
     "network": {

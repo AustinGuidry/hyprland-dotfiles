@@ -19,7 +19,7 @@ window {
     width:                       520px;
     border-radius:               6px;
     background-color:            @surface;
-    border:                      1px;
+    border:                      2px;
     border-color:                @primary;
     padding:                     0;
 }
