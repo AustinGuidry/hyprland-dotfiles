@@ -19,15 +19,20 @@ editing, ever.
   scripts/wallpaper-changed.sh
           │
           ▼
-      matugen  ──────────────────────────┐
-          │                              │
-          ├─► hypr/config/colors.lua     │  window borders
-          ├─► waybar/colors.css          │  bar
-          ├─► eww/eww.scss               │  dashboard
-          └─► rofi/colors.rasi           │  launcher
-                                         │
-          reload waybar + eww ◄──────────┘
+      matugen
+          │
+          ├─► hypr/config/colors.lua            window borders
+          ├─► quickshell/desktop/colors.json    bar, dashboard, cheatsheet
+          └─► rofi/colors.rasi                  launcher
 ```
+
+The hook doesn't restart anything: the Quickshell shell watches `colors.json` and
+recolors itself, fading to the new palette. Meanwhile a ripple spreads from where
+you clicked, like a stone dropped in a pond — a screen shader
+(`.config/hypr/shaders/ripple.frag`), so it bends the picture rather than drawing
+over it. Hyprland spots a pick the moment waypaper records it in its config,
+rather than waiting for the hook, so the ripple answers the click and only
+wallpaper clicks make one.
 
 The templates in `.config/matugen/templates/` are the only place colors are
 authored. Files like `.config/hypr/config/colors.lua` and `.config/waybar/colors.css`
@@ -44,8 +49,8 @@ overwrites them.
 | `.config/hypr/hyprlock.conf` | Lock screen |
 | `.config/hypr/hypridle.conf` | Idle → lock → suspend |
 | `.config/matugen/` | Color pipeline config + templates |
-| `.config/waybar/` | Status bar (top, 44px) |
-| `.config/eww/` | Toggleable dashboard widget |
+| `.config/quickshell/desktop/` | Status bar (top, 44px), dashboard and keybind cheatsheet — one [Quickshell](https://quickshell.org) config, run as `qs -c desktop` |
+| `.config/waybar/`, `.config/eww/` | The bar and dashboard this replaced, kept around but no longer autostarted |
 | `.config/eww-kde/` | Same cheatsheet widget, for KDE Plasma sessions (toggled by `scripts/toggle-kde-cheatsheet.sh`) |
 | `.config/rofi/` | Launcher theming |
 | `.config/kitty/` | Terminal |
@@ -66,15 +71,16 @@ Hyprland is configured in **Lua**, not hyprlang — this needs Hyprland 0.55+.
 | `SUPER` + `B` | Browser |
 | `SUPER` + `E` | Files (nautilus) |
 | `SUPER` + `H` | Launcher (rofi) |
-| `SUPER` + `D` | Toggle eww dashboard |
+| `SUPER` + `D` | Toggle dashboard |
+| `SUPER` + `K` | Toggle keybind cheatsheet |
 | `SUPER` + `W` | Wallpaper picker → retheme |
 | `SUPER` + `L` | Lock |
 | `SUPER` + `Q` | Close window |
 | `SUPER` + `F` | Fullscreen |
 | `SUPER` + `M` | Toggle floating |
 | `SUPER` + `J` | Toggle split direction |
-| `SUPER` + `1`–`0` | Switch workspace |
-| `SUPER` + `SHIFT` + `1`–`0` | Move window to workspace |
+| `SUPER` + `1`–`0` | Switch to the Nth workspace (past the last opens a new one) |
+| `SUPER` + `SHIFT` + `1`–`0` | Move window to the Nth workspace |
 | `SUPER` + `S` | Scratchpad |
 | `SUPER` + `Escape` | Shutdown menu |
 | `Print` | Screenshot output |
@@ -102,11 +108,11 @@ Then reload: `hyprctl reload`
 ```bash
 # core
 sudo pacman -S hyprland hyprlock hypridle waybar rofi kitty \
-               brightnessctl playerctl wireplumber dunst nautilus \
+               brightnessctl playerctl wireplumber dunst nautilus jq \
                polkit-kde-agent swaybg nwg-menu papirus-icon-theme
 
 # AUR
-paru -S matugen-bin waypaper hyprshot eww \
+paru -S matugen-bin waypaper hyprshot eww quickshell-git \
         networkmanager-dmenu rofi-bluetooth clipist
 ```
 

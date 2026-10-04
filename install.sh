@@ -11,6 +11,7 @@ BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 LINKS=(
     ".config/hypr"
     ".config/matugen"
+    ".config/quickshell/desktop"
     ".config/waybar"
     ".config/eww"
     ".config/eww-kde"
