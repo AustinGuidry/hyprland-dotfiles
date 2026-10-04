@@ -206,18 +206,18 @@
           (kb :key "Super P" :desc "Kitty transparency")
           (kb :key "Super Shift P" :desc "Pseudo-tile")
           (kb :key "Super G" :desc "Fling mode"))
+        (kb-col :title "Screenshots"
+          (kb :key "Print" :desc "Whole output")
+          (kb :key "Super Print" :desc "Active window")
+          (kb :key "Super Shift Print" :desc "Region")))
+      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
         (kb-col :title "Focus & Workspaces"
           (kb :key "Super Arrows" :desc "Move focus")
           (kb :key "Super 1 - 0" :desc "Switch workspace")
           (kb :key "Super Shift 1-0" :desc "Move window to WS")
           (kb :key "Super S" :desc "Scratchpad")
           (kb :key "Super Shift S" :desc "Send to scratchpad")
-          (kb :key "Super Scroll" :desc "Cycle workspaces")))
-      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
-        (kb-col :title "Screenshots"
-          (kb :key "Print" :desc "Whole output")
-          (kb :key "Super Print" :desc "Active window")
-          (kb :key "Super Shift Print" :desc "Region"))
+          (kb :key "Super Scroll" :desc "Cycle workspaces"))
         (kb-col :title "Media & Hardware"
           (kb :key "Vol +/- Mute" :desc "Audio volume")
           (kb :key "Mic Mute" :desc "Toggle microphone")

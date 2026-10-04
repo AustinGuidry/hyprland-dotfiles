@@ -38,6 +38,16 @@ Singleton {
                 ]
             },
             {
+                title: "Screenshots",
+                binds: [
+                    ["Print", "Whole output"],
+                    ["Super Print", "Active window"],
+                    ["Super Shift Print", "Region"],
+                ]
+            },
+        ],
+        [
+            {
                 title: "Focus & Workspaces",
                 binds: [
                     ["Super Arrows", "Move focus"],
@@ -46,16 +56,6 @@ Singleton {
                     ["Super S", "Scratchpad"],
                     ["Super Shift S", "Send to scratchpad"],
                     ["Super Scroll", "Cycle workspaces"],
-                ]
-            },
-        ],
-        [
-            {
-                title: "Screenshots",
-                binds: [
-                    ["Print", "Whole output"],
-                    ["Super Print", "Active window"],
-                    ["Super Shift Print", "Region"],
                 ]
             },
             {

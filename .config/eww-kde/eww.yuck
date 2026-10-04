@@ -53,15 +53,15 @@
           (kb :key "Super + drag" :desc "Move window")
           (kb :key "Super + right-drag" :desc "Resize window")
           (kb :key "Meta Ctrl Esc" :desc "Force kill window"))
-        (kb-col :title "Focus & Workspaces"
-          (kb :key "Super Arrows" :desc "Move focus")
-          (kb :key "Super 1 - 0" :desc "Switch workspace")
-          (kb :key "Super Shift 1-0" :desc "Move window to WS")))
-      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
         (kb-col :title "Screenshots"
           (kb :key "Print" :desc "Whole screen")
           (kb :key "Super Print" :desc "Active window")
-          (kb :key "Super Shift Print" :desc "Region"))
+          (kb :key "Super Shift Print" :desc "Region")))
+      (box :orientation "v" :space-evenly false :spacing 16 :valign "start"
+        (kb-col :title "Focus & Workspaces"
+          (kb :key "Super Arrows" :desc "Move focus")
+          (kb :key "Super 1 - 0" :desc "Switch workspace")
+          (kb :key "Super Shift 1-0" :desc "Move window to WS"))
         (kb-col :title "Media & Hardware"
           (kb :key "Volume Up/Down" :desc "Adjust volume")
           (kb :key "Mute" :desc "Mute audio")
