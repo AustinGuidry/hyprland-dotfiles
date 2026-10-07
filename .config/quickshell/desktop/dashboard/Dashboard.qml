@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Bluetooth
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import qs
 import qs.components
@@ -10,25 +9,25 @@ import qs.services
 
 // Super+D panel, top-left under the bar: a remake of the eww dashboard.
 // Escape, Super+D, the bar button, or a click anywhere else closes it.
+//
+// The window covers the whole screen, bar included, with the card sitting in
+// one corner of it; the transparent rest is what catches "anywhere else".
+// (HyprlandFocusGrab was meant to do that, but while it was active neither
+// clicks outside nor clicks on the bar button reached us.) The bar button
+// needs no special case: a click on it lands on this window, and closes it.
 PanelWindow {
     id: win
 
-    property var barWindows: []
     readonly property bool open: Overlays.dashboardOpen
 
     visible: open || card.opacity > 0
     anchors {
         top: true
         left: true
+        right: true
+        bottom: true
     }
-    // Same spot as the eww window. exclusiveZone 0 keeps it below the bar.
-    margins {
-        top: 50
-        left: 20
-    }
-    exclusiveZone: 0
-    implicitWidth: card.width
-    implicitHeight: card.height
+    exclusionMode: ExclusionMode.Ignore
     color: "transparent"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "quickshell-dashboard"
@@ -42,12 +41,11 @@ PanelWindow {
         }
     }
 
-    // The bars are part of the grab so their dashboard button can close the
-    // panel, instead of the click first dismissing it and then reopening it.
-    HyprlandFocusGrab {
-        active: win.open
-        windows: [win].concat(Array.from(win.barWindows))
-        onCleared: Overlays.dashboardOpen = false
+    MouseArea {
+        anchors.fill: parent
+        enabled: win.open
+        acceptedButtons: Qt.AllButtons
+        onPressed: Overlays.dashboardOpen = false
     }
 
     Timer {
@@ -66,6 +64,9 @@ PanelWindow {
     Rectangle {
         id: card
 
+        // Same spot as the eww window: under the bar, 20px in.
+        x: 20
+        y: 50
         width: 300
         height: content.implicitHeight + 30
         color: Theme.surface
@@ -77,6 +78,12 @@ PanelWindow {
         Keys.onEscapePressed: Overlays.dashboardOpen = false
 
         Behavior on opacity { NumberAnimation { duration: 140 } }
+
+        // So a click on the card's own background isn't a click outside it.
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+        }
 
         ColumnLayout {
             id: content

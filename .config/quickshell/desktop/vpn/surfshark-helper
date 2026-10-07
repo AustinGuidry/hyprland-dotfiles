@@ -1,0 +1,489 @@
+#!/usr/bin/python3 -I
+"""Root half of the bar's Surfshark menu (bar/VpnModule.qml).
+
+surfshark-vpn 1.1.0 has no flags for choosing a server, and it refuses to run
+without root. It is a wizard, and this runs it on a pty and types the answers
+so the menu can offer the same choices:
+
+    0 Albania Tirana                  a screenful of locations at a time,
+    1 Algeria Algiers
+    ...
+    press enter for next page         where a number only turns the page;
+    ...
+    Enter a number to select the location
+    0 TCP
+    1 UDP
+    Enter a number to select the VPN connection type. For default UDP, press ENTER
+
+`surfshark-vpn attack` skips the list and picks the nearest server. Either way
+OpenVPN is left running once the wizard exits.
+
+    surfshark-helper status                    no root needed
+    surfshark-helper list                      the wizard's locations
+    surfshark-helper connect udp|tcp [NAME]    no NAME: the nearest server
+    surfshark-helper down
+    surfshark-helper cancel                    stop a list or connect in progress
+
+Each command prints one JSON object. install.sh puts a root-owned copy in
+/usr/local/libexec and lets the desktop user run it through `sudo -n`, which
+is why nothing here takes a path, a number or free text from the caller: a
+location is only ever matched against the wizard's own list.
+
+When the wizard prints something this doesn't recognise, the error carries
+what it printed.
+"""
+
+import fcntl
+import json
+import os
+import pty
+import re
+import select
+import signal
+import struct
+import subprocess
+import sys
+import termios
+import time
+
+WIZARD = "/usr/bin/surfshark-vpn"
+INSTALLED = "/usr/local/libexec/surfshark-bar-helper"
+LOCK = "/run/surfshark-bar.lock"
+
+# The wizard finds openvpn through PATH, so it doesn't get the caller's.
+ENV = {**os.environ, "PATH": "/usr/local/sbin:/usr/local/bin:/usr/bin"}
+ENV.setdefault("TERM", "xterm")
+
+# The wizard talks to Surfshark's API before it prints anything, and that
+# sometimes stalls or fails outright ("Error has occured, try to restart the
+# app"). So: this long without a word, then restart it, this many times in all.
+PATIENCE = 30
+ATTEMPTS = 3
+
+ANSI = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-Z\\-_])")
+ENTRY = re.compile(r"^[ \t]*(\d{1,3})[ \t]+(\S.*?)[ \t]*$", re.M)
+NEXT_PAGE = re.compile(r"next page", re.I)
+CHOOSE = re.compile(r"enter a number", re.I)
+LOGIN = re.compile(r"e-?mail|password|log ?in|2fa|verification", re.I)
+RELOGIN = "Surfshark wants you to log in again. Run `sudo surfshark-vpn` in a terminal once."
+
+
+class Failure(Exception):
+    def __init__(self, message, transcript="", locations=None, retry=False):
+        super().__init__(message)
+        self.transcript = transcript
+        self.locations = locations
+        self.retry = retry  # the wizard's own trouble; starting it again may do
+
+
+class Cancelled(Failure):
+    def __init__(self):
+        super().__init__("Cancelled.")
+
+
+# ── What's running ───────────────────────────────────────────────────────────
+
+def openvpn_processes():
+    """(pid, argv) for every running openvpn."""
+    found = []
+    for pid in filter(str.isdigit, os.listdir("/proc")):
+        try:
+            with open(f"/proc/{pid}/comm") as f:
+                if f.read().strip() != "openvpn":
+                    continue
+            with open(f"/proc/{pid}/cmdline", "rb") as f:
+                argv = f.read().decode(errors="replace").split("\0")
+        except OSError:
+            continue
+        found.append((int(pid), [a for a in argv if a]))
+    return found
+
+
+def tunnel_up():
+    try:
+        names = os.listdir("/sys/class/net")
+    except OSError:
+        return False
+    for name in names:
+        if not name.startswith("tun"):
+            continue
+        try:
+            with open(f"/sys/class/net/{name}/flags") as f:
+                if int(f.read().strip(), 16) & 1:  # IFF_UP
+                    return True
+        except (OSError, ValueError):
+            pass
+    return False
+
+
+def connected():
+    return bool(openvpn_processes()) and tunnel_up()
+
+
+def same_file(a, b):
+    try:
+        with open(a, "rb") as fa, open(b, "rb") as fb:
+            return fa.read() == fb.read()
+    except OSError:
+        return False
+
+
+def status():
+    procs = openvpn_processes()
+    argv = procs[0][1] if procs else []
+
+    def option(flag):
+        return next((argv[i + 1] for i, a in enumerate(argv[:-1]) if a == flag), "")
+
+    # The wizard's configs are named for the server and protocol, e.g.
+    # us-nyc.prod.surfshark.com_udp.ovpn.
+    config = os.path.basename(option("--config") or next((a for a in argv[1:] if a.endswith(".ovpn")), ""))
+    proto = re.search(r"(?<![a-z])(udp|tcp)", option("--proto") or config, re.I)
+    server = re.match(r"([a-z0-9-]+?)(?:\.prod)?\.surfshark\.com", config, re.I)
+    return {
+        "ok": True,
+        "connected": bool(procs) and tunnel_up(),
+        "proto": proto.group(1).lower() if proto else "",
+        "server": server.group(1) if server else "",
+        "installed": os.access(INSTALLED, os.X_OK),
+        "current": same_file(INSTALLED, os.path.realpath(__file__)),
+    }
+
+
+# ── Reading the wizard ───────────────────────────────────────────────────────
+
+def squash(name):
+    return " ".join(name.split()).casefold()
+
+
+def parse_page(text, first=None):
+    """{number: name} for one page of the list. Pages carry on from one another, so `first` is where this one starts."""
+    lines = {}
+    for m in ENTRY.finditer(text):
+        lines.setdefault(int(m.group(1)), m.group(2))
+    n = min(lines, default=0) if first is None else first
+    page = {}
+    while n in lines:
+        page[n] = lines[n]
+        n += 1
+    return page
+
+
+def protocol_answer(prompt, proto):
+    """What to type at the UDP/TCP prompt: the digit printed beside the protocol."""
+    lines = "\n".join(l for l in prompt.splitlines() if re.search(r"udp|tcp", l, re.I))
+
+    def digit(pattern, word):
+        m = re.search(pattern % word, lines, re.I)
+        return m.group(1) if m else None
+
+    # "0 TCP" and "1 UDP" as the wizard prints them, or the other way round.
+    # Whichever reading gives both protocols a digit of their own is the one.
+    for pattern in (r"(?<!\d)(\d)\s*[\]).:=-]*\s*(?:for\s+)?%s\b", r"\b%s\s*[\[(:=-]*\s*(\d)(?!\d)"):
+        udp, tcp = digit(pattern, "udp"), digit(pattern, "tcp")
+        if udp and tcp and udp != tcp:
+            return udp if proto == "udp" else tcp
+    if proto == "udp":
+        return ""  # the default: just Enter
+    raise Failure("Couldn't tell how the wizard wants TCP chosen.", prompt)
+
+
+def last_line(text):
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    return lines[-1][:160] if lines else ""
+
+
+def complaint(w, otherwise):
+    """Why the wizard stopped, in words fit for the menu."""
+    if "restart the app" in w.text:  # its catch-all, usually an API call that failed
+        return "Surfshark's client hit an error reaching its servers. Trying again usually works."
+    return last_line(w.fresh) or otherwise
+
+
+def wants_login(w):
+    """The wizard has stopped at a prompt for the account, not just mentioned one in passing."""
+    return w.silent > 4 and not w.fresh.endswith("\n") and bool(LOGIN.search(last_line(w.fresh)))
+
+
+class Wizard:
+    """surfshark-vpn on a pty, and everything it has printed."""
+
+    def __init__(self, *args):
+        self.master, slave = pty.openpty()
+        attrs = termios.tcgetattr(slave)
+        attrs[3] &= ~termios.ECHO  # don't read our own answers back
+        termios.tcsetattr(slave, termios.TCSANOW, attrs)
+        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 50, 160, 0, 0))
+        # A session of its own with no controlling terminal: OpenVPN outlives
+        # the wizard and this script, and mustn't be hung up along with the pty.
+        self.proc = subprocess.Popen([WIZARD, *args], stdin=slave, stdout=slave, stderr=slave,
+                                     env=ENV, start_new_session=True)
+        os.close(slave)
+        self.raw = b""
+        self.seen = 0  # how much of .text earlier answers have dealt with
+        self.spoke = time.monotonic()
+
+    @property
+    def text(self):
+        return ANSI.sub("", self.raw.decode("utf-8", "replace")).replace("\r", "")
+
+    @property
+    def fresh(self):
+        return self.text[self.seen:]
+
+    @property
+    def silent(self):
+        return time.monotonic() - self.spoke
+
+    def answer(self, line):
+        self.seen = len(self.text)
+        os.write(self.master, line.encode() + b"\n")
+
+    def pump(self, deadline, quiet=0.8):
+        """Read until the wizard pauses ("quiet"), exits ("exit") or runs out of time ("timeout")."""
+        paused = time.monotonic()
+        while True:
+            now = time.monotonic()
+            if now >= deadline:
+                return "timeout"
+            if select.select([self.master], [], [], 0.1)[0]:
+                try:
+                    data = os.read(self.master, 65536)
+                except OSError:  # EIO: nothing has the pty open any more
+                    data = b""
+                if data:
+                    self.raw += data
+                    self.spoke = paused = time.monotonic()
+                    continue
+                try:
+                    self.proc.wait(5)
+                except subprocess.TimeoutExpired:
+                    pass
+                return "exit"
+            if self.proc.poll() is not None:
+                return "exit"
+            if now - paused >= quiet:
+                return "quiet"
+
+    def stop(self):
+        """Kill the wizard and anything it started."""
+        for sig in (signal.SIGTERM, signal.SIGKILL):
+            if self.proc.poll() is not None:
+                break
+            try:
+                os.killpg(self.proc.pid, sig)
+                self.proc.wait(2)
+            except (ProcessLookupError, subprocess.TimeoutExpired):
+                pass
+        self.close()
+
+    def close(self):
+        if self.master >= 0:
+            os.close(self.master)
+            self.master = -1
+
+
+def read_locations(w, deadline):
+    """Turn every page of the list and stop at the prompt for a number. Returns {number: name}."""
+    found = {}
+    while True:
+        state = w.pump(deadline)
+        if state == "exit":
+            raise Failure(complaint(w, "surfshark-vpn exited without listing any locations."), w.text, retry=True)
+        if state == "quiet":
+            page = parse_page(w.fresh, max(found) + 1 if found else None)
+            prompt = last_line(w.fresh)
+            if page and NEXT_PAGE.search(prompt):
+                found.update(page)
+                w.answer("")
+                continue
+            # Its own prompt, or (should the wording differ) a list followed by a real pause.
+            if (found or page) and (CHOOSE.search(prompt) or w.silent > 3):
+                found.update(page)
+                return found
+        if wants_login(w):
+            raise Failure(RELOGIN, w.text)
+        if state == "timeout" or w.silent > PATIENCE:
+            raise Failure("Surfshark didn't answer with its location list.", w.text, retry=not found)
+
+
+def see_out(w, proto, deadline):
+    """Answer the UDP/TCP prompt and wait for the tunnel. Returns whether the wizard asked."""
+    asked = False
+    while True:
+        state = w.pump(deadline)
+        if state == "exit":
+            return asked
+        if not asked and re.search(r"\b(udp|tcp)\b", w.fresh, re.I):
+            w.answer(protocol_answer(w.fresh, proto))
+            asked = True
+            continue
+        # The wizard lingers a few seconds after OpenVPN is up; no need to wait on it.
+        if w.silent > 4 and connected():
+            return asked
+        if wants_login(w):
+            raise Failure(RELOGIN, w.text)
+        if state == "timeout" or w.silent > 2 * PATIENCE:
+            raise Failure("surfshark-vpn went quiet without connecting.", w.text, retry=not asked)
+
+
+# ── Commands ─────────────────────────────────────────────────────────────────
+
+def down():
+    if not openvpn_processes():
+        return
+    try:
+        done = subprocess.run([WIZARD, "down"], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT, env=ENV, timeout=30, start_new_session=True)
+        said = done.stdout.decode("utf-8", "replace")
+    except subprocess.TimeoutExpired:
+        said = "surfshark-vpn down timed out"
+
+    def gone(seconds):
+        end = time.monotonic() + seconds
+        while openvpn_processes() and time.monotonic() < end:
+            time.sleep(0.2)
+        return not openvpn_processes()
+
+    if gone(8):
+        return
+    # `down` goes by the wizard's pid file; if that is stale, stop its OpenVPN directly.
+    for pid, argv in openvpn_processes():
+        if "surfshark" in " ".join(argv).lower():
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+    if not gone(8):
+        raise Failure("OpenVPN is still running after `surfshark-vpn down`.", said)
+
+
+def patiently(attempt, deadline):
+    """Run attempt(), starting over when the failure was the wizard's own trouble."""
+    for tries in range(1, ATTEMPTS + 1):
+        try:
+            return attempt()
+        except Failure as e:
+            if not e.retry or tries == ATTEMPTS or time.monotonic() + PATIENCE > deadline:
+                raise
+            time.sleep(1)
+
+
+def locations():
+    if openvpn_processes():
+        raise Failure("Disconnect to refresh the location list.")
+    deadline = time.monotonic() + 100
+
+    def attempt():
+        w = Wizard()
+        try:
+            found = read_locations(w, deadline)
+            return [found[n] for n in sorted(found)]
+        finally:
+            w.stop()  # it is sitting at its prompt; nothing has been chosen
+
+    return patiently(attempt, deadline)
+
+
+def connect(proto, name):
+    down()  # the wizard starts from a clean slate, as it does by hand
+    deadline = time.monotonic() + 150
+
+    def attempt():
+        w = Wizard() if name else Wizard("attack")
+        names = None
+        try:
+            if name:
+                found = read_locations(w, deadline)
+                names = [found[n] for n in sorted(found)]
+                number = next((n for n in sorted(found) if squash(found[n]) == squash(name)), None)
+                if number is None:
+                    raise Failure(f"{name} isn't in Surfshark's list any more.", w.text, names)
+                w.answer(str(number))
+            asked = see_out(w, proto, deadline)
+
+            # The wizard may return before the tunnel is all the way up.
+            started = time.monotonic()
+            while not connected():
+                waited = time.monotonic() - started
+                if waited > 25 or (waited > 3 and w.proc.poll() is not None and not openvpn_processes()):
+                    raise Failure(complaint(w, "OpenVPN didn't come up."), w.text, names,
+                                  retry="restart the app" in w.text)
+                w.pump(time.monotonic() + 0.3)
+        except BaseException:
+            w.stop()
+            try:
+                down()
+            except Failure:
+                pass
+            raise
+        w.close()
+        return {"ok": True, "locations": names, "proto": status()["proto"] or (proto if asked else "")}
+
+    return patiently(attempt, deadline)
+
+
+def cancel():
+    """Interrupt whichever list or connect holds the lock; it cleans up after itself."""
+    lock = os.open(LOCK, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return  # nothing is running
+    except BlockingIOError:
+        pass
+    try:
+        pid = int(os.read(lock, 32).decode().strip())
+        with open(f"/proc/{pid}/cmdline", "rb") as f:
+            ours = os.path.basename(__file__).encode() in f.read()
+    except (ValueError, OSError):
+        return
+    if ours and pid != os.getpid():
+        os.kill(pid, signal.SIGTERM)
+
+
+def interrupted(*_):
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)  # once is enough; let the cleanup finish
+    raise Cancelled()
+
+
+def main(argv):
+    signal.signal(signal.SIGTERM, interrupted)
+    try:
+        if argv == ["status"]:
+            result = status()
+        elif argv == ["cancel"]:
+            if os.geteuid() != 0:
+                raise Failure("This needs root: run it through sudo.")
+            cancel()
+            result = {"ok": True}
+        else:
+            if os.geteuid() != 0:
+                raise Failure("This needs root: run it through sudo.")
+            lock = os.open(LOCK, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                raise Failure("Another VPN change is still in progress.")
+            os.ftruncate(lock, 0)
+            os.write(lock, str(os.getpid()).encode())  # for `cancel`
+            match argv:
+                case ["list"]:
+                    result = {"ok": True, "locations": locations()}
+                case ["connect", "udp" | "tcp" as proto]:
+                    result = connect(proto, None)
+                case ["connect", "udp" | "tcp" as proto, name] if 0 < len(name) <= 80:
+                    result = connect(proto, name)
+                case ["down"]:
+                    down()
+                    result = {"ok": True}
+                case _:
+                    raise Failure("usage: surfshark-helper status | list | connect udp|tcp [NAME] | down | cancel")
+    except Failure as e:
+        result = {"ok": False, "error": str(e), "transcript": e.transcript[-4000:], "locations": e.locations,
+                  "cancelled": isinstance(e, Cancelled)}
+    print(json.dumps(result))
+    return 0 if result["ok"] else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

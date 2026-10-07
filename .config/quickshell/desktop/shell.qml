@@ -11,15 +11,12 @@ import qs.dashboard
 
 ShellRoot {
     Variants {
-        id: bars
         model: Quickshell.screens
 
         Bar {}
     }
 
-    Dashboard {
-        barWindows: bars.instances
-    }
+    Dashboard {}
 
     Cheatsheet {}
 
