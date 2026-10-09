@@ -32,5 +32,5 @@ hl.window_rule({
 -- ~/.config/kitty/kitty.conf), not with a Hyprland opacity rule. A Hyprland
 -- rule dims the whole window -- glyphs included -- which wrecks readability;
 -- kitty's background_opacity dims only the background and keeps text crisp.
--- SUPER+P toggles it between the configured value and fully opaque for reading
+-- SUPER+SHIFT+T toggles it between the configured value and fully opaque for reading
 -- long text / playing terminal games (see ~/scripts/toggle-kitty-opacity.sh).

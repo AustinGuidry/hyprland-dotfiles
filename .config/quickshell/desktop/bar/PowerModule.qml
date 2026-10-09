@@ -14,7 +14,7 @@ Pill {
     }
 
     text: Icons.power + " "
-    fontSize: 16
+    fontSize: 15
     radius: 8
     bg: Qt.alpha(Theme.primaryContrast, 0.3)
     clickable: true
@@ -29,19 +29,19 @@ Pill {
         // out rather than doing it now.
         MenuItem {
             text: "⏻  Shutdown"
-            onActivated: mod.run(["systemctl", "poweroff"])
+            onActivated: mod.run(["loginctl", "poweroff"])
         }
         MenuItem {
             text: "↺  Reboot"
-            onActivated: mod.run(["systemctl", "reboot"])
+            onActivated: mod.run(["loginctl", "reboot"])
         }
         MenuItem {
             text: "⏾  Suspend"
-            onActivated: mod.run(["systemctl", "suspend"])
+            onActivated: mod.run(["loginctl", "suspend"])
         }
         MenuItem {
             text: Icons.glyph(0xF04B2) + "  Hibernate"
-            onActivated: mod.run(["systemctl", "hibernate"])
+            onActivated: mod.run(["loginctl", "hibernate"])
         }
         MenuItem {
             text: "⇠  Log Out"

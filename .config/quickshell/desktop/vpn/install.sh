@@ -12,7 +12,10 @@
 set -eu
 
 helper=/usr/local/libexec/surfshark-bar-helper
-rule=/etc/sudoers.d/surfshark-bar
+# sudo goes by the last rule that matches and reads sudoers.d in name order, so
+# this has to sort after any file there that gives the user ALL. Beside a
+# "wheel" file, plain "surfshark-bar" lost and the helper asked for a password.
+rule=/etc/sudoers.d/zz-surfshark-bar
 here=$(cd "$(dirname "$0")" && pwd)
 
 [ "$(id -u)" -eq 0 ] || { echo "Run this with sudo: sudo $0" >&2; exit 1; }

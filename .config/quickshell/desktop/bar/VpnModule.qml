@@ -35,7 +35,7 @@ Pill {
     }
 
     text: working ? Icons.shieldBusy : Surfshark.connected ? Icons.shieldOn : Icons.shieldOff
-    fontSize: 17
+    fontSize: 16
     hpad: 10
     fg: Surfshark.connected && !working ? Theme.primary : Theme.text
     clickable: true

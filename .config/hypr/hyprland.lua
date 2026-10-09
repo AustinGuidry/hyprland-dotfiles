@@ -8,9 +8,9 @@
 -----------------
 
 terminal    = "kitty"
-fileManager = "nautilus"
+fileManager = "pcmanfm-qt"
 menu        = "rofi -show drun"
-browser     = "brave-origin-beta"
+browser     = "brave-browser-stable"
 mainMod     = "SUPER"
 
 ----------------------------------
@@ -33,9 +33,9 @@ require("config.colors") -- COLORS
 
 hl.monitor({
     output   = "eDP-1",
-    mode     = "1920x1080@60",
+    mode     = "2560x1600@60",
     position = "0x0",
-    scale    = 1,
+    scale    = 1.6,
 })
 
 -----------------------------

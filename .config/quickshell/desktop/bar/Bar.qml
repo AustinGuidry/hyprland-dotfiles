@@ -46,18 +46,18 @@ PanelWindow {
 
         Pill {
             text: Icons.launcher + " "
-            fontSize: 16
+            fontSize: 15
             hpad: 10
             bg: Qt.alpha(Theme.primaryContrast, 0.3)
             hoverBg: Qt.alpha(Theme.primary, 0.3)
             clickable: true
             onClicked: Quickshell.execDetached(["nwg-menu", "-ha", "left", "-va", "top", "-mt", "44",
-                "-wm", "hyprland", "-term", "kitty", "-fm", "nautilus", "-t", "-d"])
+                "-wm", "hyprland", "-term", "kitty", "-fm", "pcmanfm-qt", "-t", "-d"])
         }
 
         Pill {
             text: Icons.dashboard
-            fontSize: 17
+            fontSize: 16
             hpad: 10
             fg: Overlays.dashboardOpen ? Theme.primary : Theme.text
             clickable: true
@@ -74,12 +74,19 @@ PanelWindow {
     // ── Center: focused window title ──────────────────────────────────────
     Text {
         readonly property var window: Hyprland.activeToplevel
-        // Room on both sides so a long title never runs under the modules.
-        readonly property real room: 2 * Math.min(bar.width / 2 - left.x - left.width,
-            right.x - bar.width / 2) - 24
+        // The gap between the two rows of modules, less some air.
+        readonly property real from: left.x + left.width + 12
+        readonly property real to: right.x - 12
 
-        anchors.centerIn: parent
-        width: Math.min(implicitWidth, Math.max(0, room))
+        anchors.verticalCenter: parent.verticalCenter
+        // Mid-bar while it fits there. A title too long for that slides toward
+        // the side with room instead of being cut short -- on a narrow screen
+        // the right-hand row reaches nearly to the middle -- and only one
+        // longer than the whole gap is elided, so it never runs under the modules.
+        x: Math.max(from, Math.min((bar.width - width) / 2, to - width))
+        // Never 0: a Text that wide draws its whole string instead of eliding.
+        width: Math.min(implicitWidth, Math.max(1, to - from))
+        visible: to - from >= 40
         text: window && window.workspace === Hyprland.focusedWorkspace ? window.title : ""
         elide: Text.ElideRight
         color: Theme.text
@@ -125,7 +132,7 @@ PanelWindow {
         Pill {
             readonly property bool hot: SystemStats.temperature >= 80
             text: `${SystemStats.temperature}°C ${Icons.thermometer}`
-            fontSize: 14
+            fontSize: 13
             bg: hot ? Theme.critical : "transparent"
             fg: hot ? Theme.criticalText : Theme.text
         }

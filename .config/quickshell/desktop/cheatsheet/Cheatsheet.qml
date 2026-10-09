@@ -5,17 +5,12 @@ import Quickshell.Hyprland
 import Quickshell.Wayland
 import qs
 
-// Super+K keybind cheatsheet, centered over everything. Start typing to
-// filter; Escape clears the filter, then closes.
+// Super+K keybind cheatsheet, centered over everything. Escape, Super+K
+// again, or a click anywhere else closes it.
 PanelWindow {
     id: win
 
     readonly property bool open: Overlays.cheatsheetOpen
-    readonly property string query: filter.text.trim().toLowerCase()
-
-    function matches(bind) {
-        return query === "" || `${bind[0]} ${bind[1]}`.toLowerCase().includes(query);
-    }
 
     visible: open || card.opacity > 0
     exclusiveZone: 0
@@ -26,12 +21,7 @@ PanelWindow {
     WlrLayershell.namespace: "quickshell-cheatsheet"
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
-    onOpenChanged: {
-        if (open) {
-            filter.text = "";
-            filter.forceActiveFocus();
-        }
-    }
+    onOpenChanged: if (open) card.forceActiveFocus()
 
     HyprlandFocusGrab {
         active: win.open
@@ -49,6 +39,8 @@ PanelWindow {
         border.color: Theme.primary
         radius: 18
         opacity: win.open ? 1 : 0
+        focus: true
+        Keys.onEscapePressed: Overlays.cheatsheetOpen = false
 
         Behavior on opacity { NumberAnimation { duration: 140 } }
 
@@ -74,43 +66,6 @@ PanelWindow {
                 font.bold: true
             }
 
-            // Filter: invisible until you type, so the sheet looks as before.
-            RowLayout {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: -10
-                spacing: 8
-                opacity: filter.text ? 1 : 0.35
-
-                Text {
-                    text: Icons.search
-                    color: Theme.secondary
-                    font.family: Theme.font
-                    font.pixelSize: 13
-                }
-
-                TextInput {
-                    id: filter
-
-                    Layout.preferredWidth: 220
-                    color: Theme.text
-                    font.family: Theme.font
-                    font.pixelSize: 14
-                    Keys.onEscapePressed: {
-                        if (text)
-                            text = "";
-                        else
-                            Overlays.cheatsheetOpen = false;
-                    }
-
-                    Text {
-                        visible: !filter.text
-                        text: "type to filter"
-                        color: Theme.secondary
-                        font: filter.font
-                    }
-                }
-            }
-
             RowLayout {
                 Layout.alignment: Qt.AlignHCenter
                 spacing: 40
@@ -133,15 +88,6 @@ PanelWindow {
                     }
                 }
             }
-
-            Text {
-                visible: win.query !== "" && !Keybinds.columns.flat().some(g => g.binds.some(win.matches))
-                Layout.alignment: Qt.AlignHCenter
-                text: "No binds match"
-                color: Theme.secondary
-                font.family: Theme.font
-                font.pixelSize: 14
-            }
         }
     }
 
@@ -151,7 +97,6 @@ PanelWindow {
 
         required property var modelData
 
-        visible: modelData.binds.some(win.matches)
         spacing: 0
 
         Text {
@@ -182,7 +127,6 @@ PanelWindow {
                 delegate: RowLayout {
                     required property var modelData
 
-                    visible: win.matches(modelData)
                     spacing: 12
 
                     Rectangle {

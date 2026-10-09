@@ -16,7 +16,7 @@ Pill {
 
     visible: adapter !== null
     text: !powered ? "Off" : connected.length > 0 ? connected[0].name : "On"
-    fontSize: 16
+    fontSize: 15
     clickable: true
     onClicked: popup.toggle()
 

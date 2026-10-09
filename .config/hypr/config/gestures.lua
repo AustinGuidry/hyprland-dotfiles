@@ -13,7 +13,3 @@ hl.device({
     name        = "epic-mouse-v1",
     sensitivity = -0.5,
 })
-
--- BRIGHTNESS CONTROLS, LOCAL DEVICE ONLY =--
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set +5%"),  { device = "at-translated-set-2-keyboard" })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"),  { device = "at-translated-set-2-keyboard" })

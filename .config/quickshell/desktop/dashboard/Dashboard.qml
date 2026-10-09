@@ -176,7 +176,7 @@ PanelWindow {
 
                 AppButton {
                     icon: Icons.browser
-                    command: ["brave-origin-beta"]
+                    command: ["brave-browser-stable"]
                 }
                 AppButton {
                     icon: Icons.terminal
@@ -184,7 +184,7 @@ PanelWindow {
                 }
                 AppButton {
                     icon: Icons.folder
-                    command: ["nautilus"]
+                    command: ["pcmanfm-qt"]
                 }
                 AppButton {
                     icon: Icons.code

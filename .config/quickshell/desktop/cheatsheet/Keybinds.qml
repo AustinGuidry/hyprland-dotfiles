@@ -32,17 +32,18 @@ Singleton {
                     ["Super M", "Toggle floating"],
                     ["Super F", "Fullscreen"],
                     ["Super J", "Toggle split"],
-                    ["Super P", "Kitty transparency"],
-                    ["Super Shift P", "Pseudo-tile"],
+                    ["Super Shift T", "Kitty transparency"],
+                    ["Super Shift M", "Pseudo-tile"],
                     ["Super G", "Fling mode"],
                 ]
             },
             {
                 title: "Screenshots",
+                // Print and Super Shift Print do the same as the P pair.
                 binds: [
-                    ["Print", "Whole output"],
+                    ["Super P", "Whole output"],
+                    ["Super Shift P", "Region"],
                     ["Super Print", "Active window"],
-                    ["Super Shift Print", "Region"],
                 ]
             },
         ],
