@@ -1,7 +1,7 @@
 {
-    "primary": "#adc6ff",
-    "secondary": "#bfc6dc",
-    "surface": "#111318",
-    "on_primary": "#102f60",
-    "on_surface": "#e2e2e9"
+    "primary": "#ffb1c5",
+    "secondary": "#e3bdc5",
+    "surface": "#191113",
+    "on_primary": "#551d30",
+    "on_surface": "#efdfe1"
 }
