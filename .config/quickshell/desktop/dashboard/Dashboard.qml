@@ -138,14 +138,14 @@ PanelWindow {
             Stat {
                 Layout.fillWidth: true
                 Layout.topMargin: 6
-                small: true
+                accent: true
                 label: "Public IP"
                 value: Net.publicIp
             }
 
             Stat {
                 Layout.fillWidth: true
-                small: true
+                accent: true
                 label: "Disk Free"
                 value: `${SystemStats.diskFree}  (${SystemStats.diskFreePct}%)`
             }
@@ -216,7 +216,7 @@ PanelWindow {
 
         property string label
         property string value
-        property bool small: false
+        property bool accent: false
 
         Layout.fillWidth: true
         spacing: 2
@@ -225,16 +225,14 @@ PanelWindow {
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
             text: stat.label
-            size: stat.small ? 12 : 16
         }
         Label {
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
             text: stat.value
             elide: Text.ElideRight
-            size: stat.small ? 14 : 16
             bold: true
-            color: stat.small ? Theme.primary : Theme.text
+            color: stat.accent ? Theme.primary : Theme.text
         }
     }
 
