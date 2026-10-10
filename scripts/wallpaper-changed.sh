@@ -25,8 +25,19 @@ source_color=$(cat "$cache/$key" 2>/dev/null)
 if [[ $source_color =~ ^#[0-9a-fA-F]{6}$ ]]; then
     matugen color hex "$source_color" >> ~/wallpaper-debug.log 2>&1
 else
-    source_color=$(matugen image "$WALLPAPER" --prefer="$PREFER" --json hex 2>> ~/wallpaper-debug.log \
+    # matugen reads still images only, so a video wallpaper is judged by its
+    # first frame -- the same one the picker shows as its thumbnail. Shrunk on
+    # the way out, since a 4K frame is the 2 s case above.
+    image=$WALLPAPER
+    frame=
+    if [[ $(file -b --mime-type "$WALLPAPER") == video/* ]]; then
+        frame=$(mktemp --suffix=.png)
+        ffmpeg -nostdin -v error -y -i "$WALLPAPER" -frames:v 1 -vf scale=640:-2 "$frame" \
+            >> ~/wallpaper-debug.log 2>&1 && image=$frame
+    fi
+    source_color=$(matugen image "$image" --prefer="$PREFER" --json hex 2>> ~/wallpaper-debug.log \
         | jq -r '.colors.source_color.default.color')
+    [[ -n $frame ]] && rm -f "$frame"
     if [[ $source_color =~ ^#[0-9a-fA-F]{6}$ ]]; then
         mkdir -p "$cache"
         echo "$source_color" > "$cache/$key"

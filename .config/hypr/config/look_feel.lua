@@ -9,6 +9,25 @@
 
 require("config.colors")
 
+-- Whether the wallpaper is a video. Blur goes off while it is: every frame of
+-- one is new, so the blur behind each see-through window is worked out again
+-- thirty times a second, which is more than this GPU has -- 22 fps and a
+-- 100 C CPU with blur, the full 30 fps and about 90 C without.
+--
+-- The picker's config names the wallpaper, and every pick reloads this file
+-- (matugen rewrites colors.lua), so the answer here is always the current one.
+local function live_wallpaper()
+    local f = io.open(os.getenv("HOME") .. "/.config/waypaper/config.ini")
+    if not f then
+        return false
+    end
+    local text = f:read("a")
+    f:close()
+    local wallpaper = text:match("\nwallpaper = (.-)\n%S") or ""
+    local moving = { mp4 = true, webm = true, mkv = true, mov = true, m4v = true, avi = true, gif = true }
+    return moving[(wallpaper:match("%.(%w+)$") or ""):lower()] == true
+end
+
 hl.config({
     general = {
         gaps_in      = 5,
@@ -35,7 +54,7 @@ hl.config({
             color        = "rgba(1a1a1aee)",
         },
         blur = {
-            enabled  = true,
+            enabled  = not live_wallpaper(),
             size     = 3,
             passes   = 1,
             vibrancy = 0.1696,
