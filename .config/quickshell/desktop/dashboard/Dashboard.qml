@@ -191,6 +191,12 @@ PanelWindow {
                     command: ["code"]
                 }
             }
+
+            NowPlaying {
+                Layout.fillWidth: true
+                Layout.topMargin: 6
+                active: win.open
+            }
         }
     }
 

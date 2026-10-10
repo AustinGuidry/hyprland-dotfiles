@@ -39,6 +39,12 @@ Singleton {
     readonly property string folder: glyph(0xF07B)
     readonly property string code: glyph(0xE70C)
 
+    readonly property string music: glyph(0xF0387)
+    readonly property string play: glyph(0xF040A)
+    readonly property string pause: glyph(0xF03E4)
+    readonly property string skipPrevious: glyph(0xF04AE)
+    readonly property string skipNext: glyph(0xF04AD)
+
     // VPN down, up, and mid-change.
     readonly property string shieldOff: glyph(0xF0499)
     readonly property string shieldOn: glyph(0xF0565)
