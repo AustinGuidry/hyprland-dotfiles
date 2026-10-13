@@ -10,3 +10,5 @@
 
 # Local-only overrides
 *.local
+# ...but ~/.local itself holds tracked files (.local/bin)
+!/.local/

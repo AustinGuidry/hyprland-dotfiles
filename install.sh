@@ -12,6 +12,7 @@ LINKS=(
     ".config/hypr"
     ".config/matugen"
     ".config/quickshell/desktop"
+    ".config/quickshell/lockpicker"
     ".config/waybar"
     ".config/eww"
     ".config/eww-kde"
@@ -21,6 +22,7 @@ LINKS=(
     ".config/waypaper"
     ".config/networkmanager-dmenu"
     ".config/qylock"
+    ".local/share/applications/lockpicker.desktop"
     "scripts"
 )
 

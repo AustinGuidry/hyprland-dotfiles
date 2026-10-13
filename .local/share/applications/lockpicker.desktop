@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Lock Screen Themes
+Comment=Browse the qylock lock screen themes and pick one
+Exec=qs -n -c lockpicker
+Icon=system-lock-screen
+Categories=Settings;DesktopSettings;
+Keywords=qylock;lockscreen;theme;

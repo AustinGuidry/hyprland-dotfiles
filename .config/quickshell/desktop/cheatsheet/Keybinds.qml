@@ -18,6 +18,7 @@ Singleton {
                     ["Super O", "qBittorrent"],
                     ["Super W", "Wallpaper picker"],
                     ["Super L", "Lock screen"],
+                    ["Super Shift L", "Lock screen themes"],
                     ["Super D", "Dashboard"],
                     ["Super K", "This cheatsheet"],
                     ["Super Esc", "Exit / power menu"],
