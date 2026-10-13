@@ -1,0 +1,41 @@
+# Dark palette for Qt apps that are started with Qt's built-in KDE theme, which
+# is the only palette source Qt has here without qt6ct. Only the file manager
+# is: see ~/.local/bin/pcmanfm-qt. Colors are R,G,B.
+
+[General]
+ColorScheme=BreezeDark
+
+[Icons]
+Theme=Papirus-Dark
+
+[Colors:Window]
+BackgroundNormal=32,35,38
+BackgroundAlternate=41,44,48
+ForegroundNormal=239,240,241
+ForegroundInactive=161,169,177
+ForegroundLink=29,153,243
+ForegroundVisited=155,89,182
+
+[Colors:View]
+BackgroundNormal=24,26,28
+BackgroundAlternate=29,31,34
+ForegroundNormal=239,240,241
+ForegroundInactive=161,169,177
+ForegroundLink=29,153,243
+ForegroundVisited=155,89,182
+
+[Colors:Button]
+BackgroundNormal=49,54,59
+BackgroundAlternate=59,64,69
+ForegroundNormal=239,240,241
+ForegroundInactive=161,169,177
+
+[Colors:Selection]
+BackgroundNormal=61,174,233
+BackgroundAlternate=30,87,116
+ForegroundNormal=252,252,252
+ForegroundInactive=161,169,177
+
+[Colors:Tooltip]
+BackgroundNormal=49,54,59
+ForegroundNormal=239,240,241

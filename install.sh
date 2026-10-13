@@ -22,6 +22,8 @@ LINKS=(
     ".config/waypaper"
     ".config/networkmanager-dmenu"
     ".config/qylock"
+    ".config/kdeglobals"
+    ".local/bin/pcmanfm-qt"
     ".local/share/applications/lockpicker.desktop"
     "scripts"
 )

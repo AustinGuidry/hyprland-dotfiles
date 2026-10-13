@@ -1,0 +1,7 @@
+#!/bin/sh
+# pcmanfm-qt in dark mode. These two variables switch on Qt's built-in KDE
+# theme, which takes its colors and icons from ~/.config/kdeglobals.
+#
+# ~/.local/bin comes before /usr/bin in PATH, so everything that starts
+# "pcmanfm-qt" lands here: Super+E, the dashboard, the menu, other apps.
+QT_QPA_PLATFORMTHEME=kde KDE_SESSION_VERSION=6 exec /usr/bin/pcmanfm-qt "$@"
