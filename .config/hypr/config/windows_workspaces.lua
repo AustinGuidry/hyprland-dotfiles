@@ -28,6 +28,16 @@ hl.window_rule({
     float = true,
 })
 
+-- File dialogs from the desktop portal (PdfCraft's Open / Save As) have no
+-- parent window, so they would be tiled into whatever slot is free. Float them.
+hl.window_rule({
+    name   = "float-portal-file-dialogs",
+    match  = { class = "^xdg-desktop-portal-gtk$" },
+    float  = true,
+    size   = "900 600",
+    center = true,
+})
+
 -- Terminal transparency is handled inside kitty itself (background_opacity in
 -- ~/.config/kitty/kitty.conf), not with a Hyprland opacity rule. A Hyprland
 -- rule dims the whole window -- glyphs included -- which wrecks readability;
