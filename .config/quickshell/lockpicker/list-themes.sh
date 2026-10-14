@@ -9,11 +9,16 @@
 #
 # Previews are the GIFs qylock ships for its README, in Assets/ next to the
 # themes in the checkout. A theme without one falls back to its own backdrop.
+#
+# previews/ beside this script comes before both, named after the theme with
+# "-" for "/". It holds what qylock's set gets wrong: there is one clockwork
+# GIF, a recording of orbital, for three variants that look nothing alike.
 
 set -euo pipefail
 
 themes="$(realpath "$1")"
 assets="$(dirname "$themes")/Assets"
+own="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/previews"
 
 # GIFs are named loosely after their theme (dog_samurai.gif for dog-samurai),
 # so compare with case and -/_ folded.
@@ -40,6 +45,13 @@ find -L . -mindepth 2 -maxdepth 3 -name Main.qml -printf '%h\n' | sed 's|^\./||'
         key="$(fold "${name%%/*}")"
         key="${renamed[$key]:-$key}"
         preview="${gifs[$key]:-}"
+
+        for mine in "$own/${name//\//-}".{gif,png}; do
+            if [[ -f "$mine" ]]; then
+                preview="$mine"
+                break
+            fi
+        done
 
         if [[ -z "$preview" ]]; then
             for still in "$themes/$name"/{bg,background}.{png,jpg,jpeg,webp}; do
