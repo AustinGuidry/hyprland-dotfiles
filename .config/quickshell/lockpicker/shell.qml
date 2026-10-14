@@ -1,6 +1,7 @@
 // Lock screen theme picker: waypaper, but for qylock. A grid of the preview
 // GIFs qylock ships; click one and the lock screen uses it from the next lock.
-// Run with `qs -n -c lockpicker`.
+// A second tab does the same for the SDDM login screen, which takes the same
+// themes. Run with `qs -n -c lockpicker`.
 
 import QtQuick
 import QtQuick.Layouts
@@ -14,10 +15,27 @@ ShellRoot {
     // The same two places qylock's lock.sh reads.
     readonly property string lockDir: Quickshell.env("HOME") + "/.local/share/quickshell-lockscreen"
     readonly property string themeFile: Quickshell.env("HOME") + "/.config/qylock/theme"
+    readonly property string themesDir: lockDir + "/themes_link"
+
+    // What the grid is choosing for: "lock" or "sddm".
+    property string tab: "lock"
+    readonly property bool sddm: tab === "sddm"
 
     // The theme in use is whatever the file names, so a change made anywhere
     // else shows up here too. With no file, lock.sh falls back to nier-automata.
-    readonly property string current: chosen.text().trim() || "nier-automata"
+    readonly property string lockCurrent: chosen.text().trim() || "nier-automata"
+
+    // SDDM's is the Current= line of the one config file that sets it here.
+    readonly property string sddmCurrent: (sddmConf.text().match(/^Current=(.*)$/m)?.[1] ?? "").trim()
+
+    // The theme in use on the tab showing, by the grid's name for it. SDDM
+    // knows a clockwork variant by its last part alone (see sddm-theme.sh).
+    readonly property string current: {
+        if (!sddm)
+            return lockCurrent;
+        const match = themes.find(t => t.name.split("/").pop() === sddmCurrent);
+        return match?.name ?? (sddmCurrent || "SDDM's own");
+    }
 
     // [{ name, preview }], from list-themes.sh.
     property var themes: []
@@ -26,21 +44,55 @@ ShellRoot {
     readonly property string font: "JetBrainsMono Nerd Font"
 
     function use(name) {
-        if (name)
+        if (!name)
+            return;
+        if (!sddm) {
             chosen.setText(name + "\n");
+        } else if (!install.running) {
+            install.theme = name;
+            install.result = -1;
+            install.running = true;
+        }
     }
 
-    // Open a theme for real, in an ordinary window, without locking anything.
+    // Open a theme for real without locking or logging out: the lock screen
+    // in an ordinary window, the login screen full screen as SDDM shows it.
     function tryLive(name) {
         if (!name)
             return;
+        const what = { theme: name, login: sddm };
         if (live.running) {
-            live.next = name;
+            live.next = what;
             live.running = false;
         } else {
-            live.theme = name;
-            live.running = true;
+            live.open(what);
         }
+    }
+
+    // The line under the grid.
+    readonly property string status: {
+        if (install.running)
+            return `Making ${install.theme} the login screen, once you give your password.`;
+        if (live.running)
+            return live.login
+                ? `Trying ${live.theme} as the login screen. Nothing on it is connected; Super+Q closes it.`
+                : `Trying ${live.theme} live. Its reboot and shutdown buttons are real.`;
+        if (!sddm)
+            return "Click a theme to use it  ·  hover to play it  ·  arrows, Enter, P to try live, Tab, Esc";
+        if (install.result === 0)
+            return `${install.theme} is the login screen from the next logout.`;
+        // pkexec's two ways of saying no: dialog cancelled, and not authorized.
+        if (install.result === 126 || install.result === 127)
+            return "Login screen not changed: that takes your password.";
+        if (install.result > 0)
+            return "Login screen not changed: "
+                + (complaint.text.trim().split("\n")[0] || `sddm-theme.sh failed (${install.result})`);
+        return "Click a theme to log in with it (asks for your password)  ·  hover to play it  ·  arrows, Enter, P to try live, Tab, Esc";
+    }
+
+    onTabChanged: {
+        install.result = -1;
+        Qt.callLater(grid.showCurrent);
     }
 
     FileView {
@@ -48,6 +100,16 @@ ShellRoot {
         path: root.themeFile
         blockLoading: true
         watchChanges: true
+        onFileChanged: reload()
+    }
+
+    // Where sddm-theme.sh and qylock's own sddm.sh both write the theme.
+    FileView {
+        id: sddmConf
+        path: "/etc/sddm.conf.d/theme.conf"
+        blockLoading: true
+        watchChanges: true
+        printErrors: false
         onFileChanged: reload()
     }
 
@@ -71,7 +133,7 @@ ShellRoot {
 
     Process {
         running: true
-        command: ["bash", Quickshell.shellPath("list-themes.sh"), root.lockDir + "/themes_link"]
+        command: ["bash", Quickshell.shellPath("list-themes.sh"), root.themesDir]
 
         stdout: StdioCollector {
             onStreamFinished: {
@@ -80,38 +142,65 @@ ShellRoot {
                     return { name, preview };
                 });
                 root.listed = true;
-                grid.currentIndex = Math.max(0, root.themes.findIndex(t => t.name === root.current));
-                grid.positionViewAtIndex(grid.currentIndex, GridView.Center);
+                grid.showCurrent();
             }
         }
     }
 
-    // lock_shell.qml has a windowed test path, but only takes it when it thinks
-    // the session is X11; QT_QPA_PLATFORM keeps Qt itself on Wayland.
+    // The one live preview. lock_shell.qml has a windowed test path, but only
+    // takes it when it thinks the session is X11; QT_QPA_PLATFORM keeps Qt
+    // itself on Wayland. SDDM's greeter has a test mode of its own, and reads
+    // the theme from where it is.
     Process {
         id: live
 
         property string theme: ""
-        property string next: ""    // asked for while another preview was still open
+        property bool login: false  // the login screen rather than the lock screen
+        property var next: null     // asked for while another preview was still open
 
-        command: ["env", "QS_TESTING=1", "XDG_SESSION_TYPE=x11", "QT_QPA_PLATFORM=wayland",
-            root.lockDir + "/lock.sh", theme]
+        command: login
+            ? ["sddm-greeter-qt6", "--test-mode", "--theme", root.themesDir + "/" + theme]
+            : ["env", "QS_TESTING=1", "XDG_SESSION_TYPE=x11", "QT_QPA_PLATFORM=wayland",
+                root.lockDir + "/lock.sh", theme]
+
+        function open(what) {
+            theme = what.theme;
+            login = what.login;
+            running = true;
+        }
 
         onExited: {
             if (!next)
                 return;
-            theme = next;
-            next = "";
-            Qt.callLater(() => live.running = true);
+            const what = next;
+            next = null;
+            Qt.callLater(() => live.open(what));
+        }
+    }
+
+    // Root's share of picking a login theme, behind polkit's password dialog.
+    Process {
+        id: install
+
+        property string theme: ""
+        property int result: -1     // exit code of the last run, -1 before one
+
+        command: ["pkexec", "bash", Quickshell.shellPath("sddm-theme.sh"), root.themesDir, theme]
+
+        stderr: StdioCollector { id: complaint }
+
+        onExited: code => {
+            result = code;
+            sddmConf.reload();
         }
     }
 
     FloatingWindow {
-        title: "Lock Screen Themes"
+        title: root.sddm ? "SDDM Themes" : "Lock Screen Themes"
         color: colors.surface
         implicitWidth: 1120
         implicitHeight: 760
-        minimumSize: Qt.size(340, 320)
+        minimumSize: Qt.size(420, 320)
 
         // Without this the shell would stay running with no window.
         onClosed: Qt.quit()
@@ -127,14 +216,19 @@ ShellRoot {
                 Layout.rightMargin: 6
                 spacing: 8
 
-                Text {
-                    Layout.fillWidth: true
+                TabTitle {
+                    name: "lock"
                     text: "Lock screen themes"
-                    color: colors.primary
-                    font.family: root.font
-                    font.pixelSize: 20
-                    font.bold: true
-                    elide: Text.ElideRight
+                }
+
+                TabTitle {
+                    Layout.leftMargin: 14
+                    name: "sddm"
+                    text: "SDDM themes"
+                }
+
+                Item {
+                    Layout.fillWidth: true
                 }
 
                 Text {
@@ -144,12 +238,18 @@ ShellRoot {
                     font.pixelSize: 14
                 }
 
+                // Gives way before the tabs do when the window is narrow. The
+                // layout deals in whole pixels, and one short would elide it.
                 Text {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: Math.ceil(implicitWidth)
+                    Layout.maximumWidth: Math.ceil(implicitWidth)
                     text: root.current
                     color: colors.on_surface
                     font.family: root.font
                     font.pixelSize: 14
                     font.bold: true
+                    elide: Text.ElideRight
                 }
             }
 
@@ -178,6 +278,12 @@ ShellRoot {
                     positionViewAtIndex(currentIndex, GridView.Contain);
                 }
 
+                // Start from the theme in use, on opening and on changing tab.
+                function showCurrent() {
+                    currentIndex = Math.max(0, root.themes.findIndex(t => t.name === root.current));
+                    positionViewAtIndex(currentIndex, GridView.Center);
+                }
+
                 // Where the arrow keys are; "" until the list has loaded.
                 readonly property string cursor: root.themes[currentIndex]?.name ?? ""
 
@@ -188,6 +294,9 @@ ShellRoot {
                     if (event.key === Qt.Key_P) {
                         root.tryLive(cursor);
                         event.accepted = true;
+                    } else if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
+                        root.tab = root.sddm ? "lock" : "sddm";
+                        event.accepted = true;
                     }
                 }
 
@@ -196,7 +305,7 @@ ShellRoot {
                 Text {
                     anchors.centerIn: parent
                     visible: root.listed && root.themes.length === 0
-                    text: "No qylock themes found in\n" + root.lockDir + "/themes_link"
+                    text: "No qylock themes found in\n" + root.themesDir
                     horizontalAlignment: Text.AlignHCenter
                     color: Qt.alpha(colors.on_surface, 0.6)
                     font.family: root.font
@@ -222,9 +331,7 @@ ShellRoot {
 
                 Text {
                     Layout.fillWidth: true
-                    text: live.running
-                        ? `Trying ${live.theme} live. Its reboot and shutdown buttons are real.`
-                        : "Click a theme to use it  ·  hover to play it  ·  arrows, Enter, P to try live, Esc"
+                    text: root.status
                     color: Qt.alpha(colors.on_surface, 0.6)
                     font.family: root.font
                     font.pixelSize: 13
@@ -235,11 +342,55 @@ ShellRoot {
                     visible: live.running
                     text: "Close preview"
                     onClicked: {
-                        live.next = "";
+                        live.next = null;
                         live.running = false;
                     }
                 }
             }
+        }
+    }
+
+    // One of the header's two titles; the grid chooses for the lit one.
+    component TabTitle: Item {
+        id: heading
+
+        required property string name
+        property alias text: label.text
+        readonly property bool shown: root.tab === name
+
+        implicitWidth: label.implicitWidth
+        implicitHeight: label.implicitHeight + 6
+
+        // Bold either way, so the pair does not shift as the tab changes.
+        Text {
+            id: label
+            color: heading.shown ? colors.primary
+                : over.hovered ? colors.on_surface : Qt.alpha(colors.on_surface, 0.45)
+            font.family: root.font
+            font.pixelSize: 20
+            font.bold: true
+        }
+
+        Rectangle {
+            visible: heading.shown
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+            height: 2
+            radius: 1
+            color: colors.primary
+        }
+
+        HoverHandler {
+            id: over
+            cursorShape: Qt.PointingHandCursor
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.tab = heading.name
         }
     }
 

@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
 Name=Lock Screen Themes
-Comment=Browse the qylock lock screen themes and pick one
+Comment=Browse the qylock themes and pick one for the lock screen or the SDDM login
 Exec=qs -n -c lockpicker
 Icon=system-lock-screen
 Categories=Settings;DesktopSettings;
-Keywords=qylock;lockscreen;theme;
+Keywords=qylock;lockscreen;theme;sddm;login;
