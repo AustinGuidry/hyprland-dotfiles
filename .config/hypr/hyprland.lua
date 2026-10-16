@@ -46,6 +46,15 @@ hl.env("XCURSOR_SIZE",    "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("HYPRSHOT_DIR",    os.getenv("HOME") .. "/Pictures/Screenshots")
 
+-- SDDM starts the session without an interactive shell, so ~/.bashrc never
+-- adds ~/.local/bin. The wrappers there (the dark pcmanfm-qt, pdfcraft, ...)
+-- only work if it comes first. Checked so a reload doesn't add it twice.
+local localbin = os.getenv("HOME") .. "/.local/bin"
+local path = os.getenv("PATH") or ""
+if not (":" .. path .. ":"):find(":" .. localbin .. ":", 1, true) then
+    hl.env("PATH", localbin .. ":" .. path)
+end
+
 hl.env("QT_IM_MODULE",  "fcitx")
 hl.env("XMODIFIERS",    "@im=fcitx")
 hl.env("SDL_IM_MODULE", "fcitx")
