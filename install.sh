@@ -13,6 +13,7 @@ LINKS=(
     ".config/matugen"
     ".config/quickshell/desktop"
     ".config/quickshell/lockpicker"
+    ".config/quickshell/fontpicker"
     ".config/waybar"
     ".config/eww"
     ".config/eww-kde"
@@ -25,6 +26,7 @@ LINKS=(
     ".config/kdeglobals"
     ".local/bin/pcmanfm-qt"
     ".local/share/applications/lockpicker.desktop"
+    ".local/share/applications/fontpicker.desktop"
     "scripts"
 )
 

@@ -19,6 +19,7 @@ Singleton {
                     ["Super W", "Wallpaper picker"],
                     ["Super L", "Lock screen"],
                     ["Super Shift L", "Lock screen themes"],
+                    ["Super Shift F", "Fonts"],
                     ["Super D", "Dashboard"],
                     ["Super K", "This cheatsheet"],
                     ["Super Esc", "Exit / power menu"],

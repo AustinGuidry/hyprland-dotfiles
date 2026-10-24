@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Fonts
+Comment=Preview your fonts and choose where each one is used: bar, terminal, launcher, notifications, apps
+Exec=qs -n -c fontpicker
+Icon=preferences-desktop-font
+Categories=Settings;DesktopSettings;
+Keywords=font;typeface;typography;kitty;rofi;dunst;gtk;

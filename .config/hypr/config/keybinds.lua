@@ -17,6 +17,7 @@ hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("code"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.local/share/quickshell-lockscreen/lock.sh"))
 hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("qs -n -c lockpicker")) -- lock screen theme picker: ~/.config/quickshell/lockpicker
+hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd("qs -n -c fontpicker")) -- font picker: ~/.config/quickshell/fontpicker
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("waypaper"))
 
 -- Screenshots. `-m active` on output/window mode makes the grab instant
