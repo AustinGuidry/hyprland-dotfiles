@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.Mpris
@@ -67,7 +69,7 @@ Item {
                 Image {
                     id: cover
                     anchors.fill: parent
-                    source: island.player?.trackArtUrl ?? ""
+                    source: island.player ? island.player.trackArtUrl : ""
                     sourceSize.width: 128
                     sourceSize.height: 128
                     fillMode: Image.PreserveAspectCrop

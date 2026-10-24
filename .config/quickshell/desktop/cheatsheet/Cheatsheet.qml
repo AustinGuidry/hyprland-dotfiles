@@ -125,6 +125,8 @@ PanelWindow {
                 model: group.modelData.binds
 
                 delegate: RowLayout {
+                    id: bind
+
                     required property var modelData
 
                     spacing: 12
@@ -138,7 +140,7 @@ PanelWindow {
                         Text {
                             id: key
                             anchors.centerIn: parent
-                            text: modelData[0]
+                            text: bind.modelData[0]
                             color: Theme.primary
                             font.family: Theme.font
                             font.pixelSize: 13
@@ -147,7 +149,7 @@ PanelWindow {
                     }
 
                     Text {
-                        text: modelData[1]
+                        text: bind.modelData[1]
                         color: Theme.text
                         font.family: Theme.font
                         font.pixelSize: 14
