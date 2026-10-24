@@ -162,8 +162,10 @@ PanelWindow {
 
             // Volume
             SliderRow {
-                lowIcon: Icons.volumeLow
+                lowIcon: Audio.muted ? Icons.volumeMuted : Icons.volumeLow
                 highIcon: Icons.volumeHigh
+                dimmed: Audio.muted
+                note: Audio.muted ? "Muted" : ""
                 value: Math.round(Audio.volume * 100)
                 onMoved: v => Audio.setVolume(v / 100)
             }
@@ -243,6 +245,9 @@ PanelWindow {
         property string highIcon
         property int from: 0
         property int value
+        // Faded slider plus a caption between the icons, e.g. for mute.
+        property bool dimmed: false
+        property string note
         signal moved(int value)
 
         Layout.fillWidth: true
@@ -256,8 +261,11 @@ PanelWindow {
                 text: sliderRow.lowIcon
                 size: 14
             }
-            Item {
+            Label {
                 Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                text: sliderRow.note
+                size: 12
             }
             Label {
                 text: sliderRow.highIcon
@@ -269,6 +277,7 @@ PanelWindow {
             id: slider
 
             Layout.fillWidth: true
+            opacity: sliderRow.dimmed ? 0.4 : 1
             from: sliderRow.from
             to: 100
             stepSize: 1

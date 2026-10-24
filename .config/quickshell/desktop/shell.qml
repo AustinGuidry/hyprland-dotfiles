@@ -1,4 +1,5 @@
-// Desktop shell: top bar, Super+D dashboard, Super+K keybind cheatsheet.
+// Desktop shell: top bar, Super+D dashboard, Super+K keybind cheatsheet,
+// volume/brightness HUD.
 // Replaces waybar + the eww dashboard/cheatsheet. Run with `qs -c desktop`.
 
 import QtQuick
@@ -8,6 +9,7 @@ import Quickshell.Io
 import qs.bar
 import qs.cheatsheet
 import qs.dashboard
+import qs.osd
 
 ShellRoot {
     Variants {
@@ -19,6 +21,8 @@ ShellRoot {
     Dashboard {}
 
     Cheatsheet {}
+
+    Osd {}
 
     // Bound in keybinds.lua as hl.dsp.global("quickshell:<name>").
     GlobalShortcut {

@@ -16,6 +16,12 @@ Singleton {
     readonly property string bulb: glyph(0xF0EB)
     readonly property string volumeLow: glyph(0xF026)
     readonly property string volumeHigh: glyph(0xF028)
+    readonly property string volumeMuted: glyph(0xF0581)
+    // Speaker with no waves, one, two -- the volume HUD's icon.
+    readonly property var speaker: [0xF057F, 0xF0580, 0xF057E].map(glyph)
+    readonly property string brightness: glyph(0xF05A8)
+    readonly property string keyboard: glyph(0xF030C)
+    readonly property string keyboardOff: glyph(0xF0310)
     readonly property string power: "⏻"
 
     readonly property string charging: glyph(0xF0084)
