@@ -38,8 +38,8 @@ Singleton {
     readonly property color criticalText: "#ffaaaa"
     readonly property color urgent: "#8b2020"
 
-    readonly property string font: "JetBrainsMono Nerd Font"
-    readonly property int fontSize: 14
+    readonly property string font: "Roboto Condensed"
+    readonly property int fontSize: 15
     readonly property int barHeight: 44
     readonly property int radius: 6
 
