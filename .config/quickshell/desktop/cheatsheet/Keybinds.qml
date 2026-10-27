@@ -29,17 +29,20 @@ Singleton {
                 title: "Windows",
                 binds: [
                     ["Super Q", "Close window"],
+                    ["Super Shift Q", "Force kill window"],
                     ["Super M", "Toggle floating"],
                     ["Super F", "Fullscreen"],
                     ["Super J", "Toggle split"],
-                    ["Super P", "Kitty transparency"],
-                    ["Super Shift P", "Pseudo-tile"],
+                    ["Super Shift J", "Pseudo-tile"],
+                    ["Super Shift T", "Kitty transparency"],
                     ["Super G", "Fling mode"],
                 ]
             },
             {
                 title: "Screenshots",
                 binds: [
+                    ["Super P", "Whole output"],
+                    ["Super Shift P", "Region"],
                     ["Print", "Whole output"],
                     ["Super Print", "Active window"],
                     ["Super Shift Print", "Region"],

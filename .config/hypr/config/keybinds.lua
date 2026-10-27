@@ -22,10 +22,13 @@ hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("waypaper"))
 -- (current monitor / focused window) instead of waiting for a mouse click to
 -- pick one -- which is what you want from a hotkey, and the only thing that
 -- works while an overlay has a keyboard grab. Region stays interactive on
--- purpose.
+-- purpose. mainMod + P / SHIFT + P repeat the output and region grabs on the
+-- letter row, for when Print is awkward to reach.
 hl.bind("PRINT", hl.dsp.exec_cmd("hyprshot -m output -m active"))
 hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd("hyprshot -m window -m active"))
 hl.bind(mainMod .. " + SHIFT + PRINT", hl.dsp.exec_cmd("hyprshot -m region"))
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("hyprshot -m output -m active"))
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("hyprshot -m region"))
 
 -- Dashboard (mainMod + D) and keybind cheatsheet (mainMod + K) are Quickshell
 -- overlays (~/.config/quickshell/desktop), bound as global shortcuts the shell
@@ -35,14 +38,16 @@ hl.bind(mainMod .. " + SHIFT + PRINT", hl.dsp.exec_cmd("hyprshot -m region"))
 hl.bind(mainMod .. " + D", hl.dsp.global("quickshell:dashboard"))
 hl.bind(mainMod .. " + K", hl.dsp.global("quickshell:cheatsheet"))
 
--- Window management
-hl.bind(mainMod .. " + Q", hl.dsp.window.kill())
+-- Window management. close() asks the window to quit; kill() SIGKILLs its
+-- process, for hung apps (it can't touch root-owned ones like rpi-imager).
+hl.bind(mainMod .. " + Q", hl.dsp.window.close())
+hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.window.kill())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen())
-hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
+hl.bind(mainMod .. " + SHIFT + J", hl.dsp.window.pseudo())
 
 -- Toggle kitty background transparency on/off (text stays opaque either way)
-hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(os.getenv("HOME") .. "/scripts/toggle-kitty-opacity.sh"))
+hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd(os.getenv("HOME") .. "/scripts/toggle-kitty-opacity.sh"))
 
 -- Focus movement
 hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "l" }))
