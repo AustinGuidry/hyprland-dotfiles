@@ -73,3 +73,17 @@ hl.config({
         },
     },
 })
+
+-----------
+--- QUIRKS ---
+-----------
+
+-- Hyprland 0.57 defaults this to true, which hides every dmabuf format the
+-- display plane can't scan out. Haswell's primary plane has no alpha formats,
+-- so clients lost ARGB8888 entirely: kitty (transparent) and mpvpaper failed
+-- with "EGL: No EGLConfigs returned". Advertise all renderer formats again.
+hl.config({
+    quirks = {
+        skip_non_kms_dmabuf_formats = false,
+    },
+})
