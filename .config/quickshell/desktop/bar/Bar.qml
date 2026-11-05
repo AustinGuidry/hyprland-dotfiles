@@ -34,7 +34,7 @@ PanelWindow {
         color: Qt.alpha(Theme.primary, 0.3)
     }
 
-    // ── Left: launcher, dashboard, VPN, workspaces ────────────────────────
+    // ── Left: launcher, dashboard, VPNs, workspaces ───────────────────────
     RowLayout {
         id: left
         anchors {
@@ -65,6 +65,8 @@ PanelWindow {
         }
 
         VpnModule {}
+
+        HomeVpnModule {}
 
         Workspaces {
             monitorName: bar.screen?.name ?? ""

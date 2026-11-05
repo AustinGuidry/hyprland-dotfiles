@@ -57,6 +57,11 @@ Singleton {
     readonly property string shieldBusy: glyph(0xF0780)
     readonly property string bolt: glyph(0xF0E7)
 
+    // Home VPN off, up, and mid-change (an arrow into the house).
+    readonly property string homeOff: glyph(0xF06A1)
+    readonly property string homeOn: glyph(0xF02DC)
+    readonly property string homeBusy: glyph(0xF0F9C)
+
     readonly property string search: glyph(0xF002)
     readonly property string chevronLeft: glyph(0xF0141)
     readonly property string chevronRight: glyph(0xF0142)
