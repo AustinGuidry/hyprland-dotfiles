@@ -1,0 +1,43 @@
+// fastfetch's defaults, except the battery line.
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "host",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "display",
+    "de",
+    "wm",
+    "wmtheme",
+    "theme",
+    "icons",
+    "font",
+    "cursor",
+    "terminal",
+    "terminalfont",
+    "cpu",
+    "gpu",
+    "memory",
+    "swap",
+    "disk",
+    "localip",
+    // The stock battery module shows the kernel's `capacity`, which on this
+    // gauge is charge over *design* capacity, so a worn pack never gets past
+    // its health (~60%). Show charge over current full capacity instead -- the
+    // number UPower and the bar show -- with the health alongside.
+    {
+      "type": "command",
+      "key": "Battery",
+      "text": "b=$(dirname \"$(grep -lx Battery /sys/class/power_supply/*/type | head -n1)\") && awk -v n=\"$(cat $b/charge_now)\" -v f=\"$(cat $b/charge_full)\" -v d=\"$(cat $b/charge_full_design)\" -v s=\"$(cat $b/status)\" 'BEGIN { printf \"%.0f%% [%s], health %.0f%%\", 100 * n / f, s, 100 * f / d }'"
+    },
+    "poweradapter",
+    "locale",
+    "break",
+    "colors"
+  ]
+}

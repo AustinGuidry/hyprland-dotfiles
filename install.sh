@@ -24,6 +24,7 @@ LINKS=(
     ".config/networkmanager-dmenu"
     ".config/qylock"
     ".config/kdeglobals"
+    ".config/fastfetch"
     ".local/bin/pcmanfm-qt"
     ".local/share/applications/lockpicker.desktop"
     ".local/share/applications/fontpicker.desktop"
