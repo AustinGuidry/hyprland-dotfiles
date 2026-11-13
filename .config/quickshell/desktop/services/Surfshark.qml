@@ -37,6 +37,9 @@ Singleton {
     property bool cancelling: false
     // A connect asked for while the list was still loading: { where }.
     property var queued: null
+    // The connect under way came from Super+V, which has no menu to show how it went.
+    property bool announce: false
+    property bool announceServer: false
 
     // Remembered across restarts.
     property string protocol: "udp"
@@ -64,6 +67,40 @@ Singleton {
             target = where;
             run("connecting", ["connect", protocol].concat(where ? [where] : []));
         }
+    }
+
+    // Super+V (shell.qml), a toggle: off if the VPN is up (however it got
+    // there) or on its way up; otherwise on, to the nearest server over TCP.
+    // Connecting sets the menu's protocol to TCP too, so the menu agrees.
+    function quickToggle() {
+        if (!ready) {
+            notify("The bar's VPN helper isn't set up yet: open the shield menu.");
+            return;
+        }
+        if (busy === "connecting") {
+            announce = true;
+            notify("Cancelling…");
+            disconnect();
+            return;
+        }
+        // "listing" gives way to a connect; anything else is left to finish.
+        if (busy && (busy !== "listing" || connected))
+            return;
+        announce = true;
+        if (connected) {
+            notify("Disconnecting…");
+            disconnect();
+            return;
+        }
+        protocol = "tcp";
+        save();
+        notify("Connecting to the nearest server over TCP…");
+        connect("");
+    }
+
+    function notify(text) {
+        Quickshell.execDetached(["notify-send", "-a", "Surfshark", "-h", "string:x-dunst-stack-tag:surfshark",
+            "Surfshark", text]);
     }
 
     // Switching off mid-connect calls the connect off.
@@ -139,6 +176,9 @@ Singleton {
         } catch (e) {}
         busy = "";
         cancelling = false;
+        const announced = announce && (what === "connecting" || what === "disconnecting");
+        if (announced)
+            announce = false;
 
         if (!result) {
             if (text.includes("sudo:"))
@@ -146,17 +186,28 @@ Singleton {
             else
                 error = "The VPN helper failed; `qs -c desktop log` has the details.";
             console.warn("surfshark:", text.trim());
+            if (announced)
+                notify(`Couldn't ${what === "connecting" ? "connect" : "disconnect"}: ${error || "sudo wouldn't run the helper."}`);
         } else {
             const first = !allowed;
             allowed = true;
             if (result.locations?.length)
                 locations = result.locations;
             if (result.cancelled) {
-                // Asked for; nothing to report.
+                // Asked for; nothing to report but that it happened.
+                if (announced)
+                    notify("Connection cancelled.");
             } else if (!result.ok) {
                 error = result.error;
                 console.warn(`surfshark: ${result.error}\n${result.transcript ?? ""}`);
+                if (announced)
+                    notify(`Couldn't ${what === "connecting" ? "connect" : "disconnect"}: ${result.error}`);
+            } else if (what === "disconnecting") {
+                if (announced)
+                    notify("Disconnected.");
             } else if (what === "connecting") {
+                if (announced)
+                    announceServer = true;  // the server name arrives with the next status probe
                 location = target;
                 owned = true;
                 ownedProtocol = result.proto || protocol;
@@ -187,6 +238,11 @@ Singleton {
         liveProtocol = s.proto;
         upToDate = s.current;
         installed = s.installed;
+        if (announceServer) {
+            announceServer = false;
+            notify(connected ? `Connected · ${server || "nearest server"} · ${(liveProtocol || ownedProtocol).toUpperCase()}`
+                : "The tunnel dropped right after connecting.");
+        }
         if (!connected && !busy && owned) {
             owned = false;
             save();

@@ -10,6 +10,7 @@ import qs.bar
 import qs.cheatsheet
 import qs.dashboard
 import qs.osd
+import qs.services
 
 ShellRoot {
     Variants {
@@ -35,6 +36,12 @@ ShellRoot {
         name: "cheatsheet"
         description: "Toggle the keybind cheatsheet"
         onPressed: Overlays.cheatsheetOpen = !Overlays.cheatsheetOpen
+    }
+
+    GlobalShortcut {
+        name: "vpn-quick"
+        description: "Surfshark on/off (on: the nearest server over TCP)"
+        onPressed: Surfshark.quickToggle()
     }
 
     // For scripts: qs -c desktop ipc call dashboard toggle
