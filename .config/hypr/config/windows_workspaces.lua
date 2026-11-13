@@ -44,3 +44,12 @@ hl.window_rule({
 -- kitty's background_opacity dims only the background and keeps text crisp.
 -- SUPER+SHIFT+T toggles it between the configured value and fully opaque for reading
 -- long text / playing terminal games (see ~/scripts/toggle-kitty-opacity.sh).
+
+-- Lords of Magic (Wine, Wayland driver). Wine reports the screen in physical
+-- pixels (2560x1600) but sizes windows in logical ones (1600x1000), so
+-- cnc-ddraw runs windowed at 1600x1000 (ddraw.ini) and Hyprland fullscreens it.
+hl.window_rule({
+    name       = "lords-of-magic-fullscreen",
+    match      = { class = "^lomse\\.exe$" },
+    fullscreen = true,
+})
