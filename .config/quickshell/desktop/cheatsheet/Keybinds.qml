@@ -21,6 +21,7 @@ Singleton {
                     ["Super Shift L", "Lock screen themes"],
                     ["Super Shift F", "Fonts"],
                     ["Super D", "Dashboard"],
+                    ["Super V", "VPN on/off (TCP)"],
                     ["Super K", "This cheatsheet"],
                     ["Super Esc", "Exit / power menu"],
                 ]
@@ -56,6 +57,7 @@ Singleton {
                     ["Super Arrows", "Move focus"],
                     ["Super 1 - 0", "Switch workspace"],
                     ["Super Shift 1-0", "Move window to WS"],
+                    ["Super Drag to bar", "Drop window on a WS"],
                     ["Super S", "Scratchpad"],
                     ["Super Shift S", "Send to scratchpad"],
                     ["Super Scroll", "Cycle workspaces"],

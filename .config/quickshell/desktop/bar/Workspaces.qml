@@ -7,7 +7,8 @@ import Quickshell.Hyprland
 import qs
 import qs.components
 
-// Workspace buttons for one monitor. Click to switch, scroll to cycle.
+// Workspace buttons for one monitor. Click to switch, scroll to cycle, drop a
+// SUPER-dragged window on one to send the window there.
 RowLayout {
     id: root
 
@@ -23,7 +24,31 @@ RowLayout {
 
     spacing: 4
 
+    // hypr/config/keybinds.lua reports a drag that ends on the bar as
+    // `custom>>bardrop,<monitor>,<x>,<y>,<window>`, x and y in bar coordinates.
+    // The window stays put unless it landed on a number.
+    Connections {
+        target: Hyprland
+
+        function onRawEvent(event: HyprlandEvent): void {
+            if (event.name !== "custom")
+                return;
+            const [tag, monitor, x, y, window] = event.data.split(",");
+            if (tag !== "bardrop" || monitor !== root.monitorName)
+                return;
+            for (let i = 0; i < buttons.count; i++) {
+                const pill = buttons.itemAt(i);
+                if (pill.contains(pill.mapFromItem(null, Number(x), Number(y)))) {
+                    Hyprland.dispatch(`hl.dsp.window.move({ workspace = ${pill.modelData.id}, follow = false, window = "${window}" })`);
+                    return;
+                }
+            }
+        }
+    }
+
     Repeater {
+        id: buttons
+
         model: ScriptModel {
             values: root.ordered.filter(w => !w.monitor || w.monitor.name === root.monitorName)
         }

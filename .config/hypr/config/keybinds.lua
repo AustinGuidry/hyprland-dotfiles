@@ -39,6 +39,9 @@ hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("hyprshot -m region"))
 -- other bind keeps working meanwhile.
 hl.bind(mainMod .. " + D", hl.dsp.global("quickshell:dashboard"))
 hl.bind(mainMod .. " + K", hl.dsp.global("quickshell:cheatsheet"))
+-- Surfshark on/off (on = the nearest server over TCP), through the bar's VPN
+-- service (quickshell/desktop/services/Surfshark.qml), so the shield follows it.
+hl.bind(mainMod .. " + V", hl.dsp.global("quickshell:vpn-quick"))
 
 -- Window management
 hl.bind(mainMod .. " + Q", hl.dsp.window.kill())
@@ -92,6 +95,36 @@ hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 -- Move/resize windows with mouse
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+-- Drop a dragged window on a workspace number in the bar to send it there.
+-- Hyprland can't see the bar's buttons, so this only reports where on the bar
+-- the drop landed (`custom>>bardrop,...` on the event socket) and
+-- quickshell/desktop/bar/Workspaces.qml picks the number under it. Every bind
+-- on a key runs, in the order bound, so these come after the drag above: on
+-- release the drag has ended and Hyprland has focused the dropped window.
+local drag_from
+hl.bind(mainMod .. " + mouse:272", function() drag_from = hl.get_cursor_pos() end)
+hl.bind(mainMod .. " + mouse:272", function()
+    local pos, win = hl.get_cursor_pos(), hl.get_active_window()
+    if not (pos and win and drag_from) then
+        return
+    end
+    for _, bar in ipairs(hl.get_layers({ namespace = "quickshell-bar" })) do
+        if pos.x >= bar.x and pos.x < bar.x + bar.w and pos.y >= bar.y and pos.y < bar.y + bar.h then
+            local address = "address:" .. win.address
+            -- A floating window came up to the bar with the cursor; put it back
+            -- where it was rather than leave it tucked under the bar.
+            if win.floating then
+                hl.dispatch(hl.dsp.window.move({
+                    x = drag_from.x - pos.x, y = drag_from.y - pos.y, relative = true, window = address,
+                }))
+            end
+            hl.dispatch(hl.dsp.event(string.format("bardrop,%s,%d,%d,%s",
+                bar.monitor.name, math.floor(pos.x - bar.x), math.floor(pos.y - bar.y), address)))
+            return
+        end
+    end
+end, { drag = true })
 
 -- Media / volume keys
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { repeating = true })
